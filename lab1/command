@@ -10,3 +10,4 @@ sudo apt install ucspi-tcp
 man tcpserver
 tcpserver 0 6000 ./server.py
 nc localhost 6000
+gcc hello.c -o hello
