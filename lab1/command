@@ -1,3 +1,12 @@
 sudo apt-get install python3-pip
 python3 -m pip install --user pwntools
 chmod +x server.py
+xinetd   || tcpserver
+nc (netcommand)
+sudo apt install xinetd
+sudo xinetd -f ./service.conf -filelog log
+ps aux | grep xinetd
+sudo apt install ucspi-tcp
+man tcpserver
+tcpserver 0 6000 ./server.py
+nc localhost 6000
