@@ -11,3 +11,5 @@ man tcpserver
 tcpserver 0 6000 ./server.py
 nc localhost 6000
 gcc hello.c -o hello
+
+nc 107.21.135.41 2222
