@@ -11,5 +11,28 @@ man tcpserver
 tcpserver 0 6000 ./server.py
 nc localhost 6000
 gcc hello.c -o hello
-
+gcc -o hello hello.c
 nc 107.21.135.41 2222
+
+// gdb commands
+gcc -g ./service_vuln.c -o debug  // gdb debug
+run or r
+break 64 or b 64 // breakpoint
+b exit+4 // inside function
+info b // checkpoint breakpoint lists
+../SECRET
+random;touch aaa
+print var_name // print variable
+next or n // to execute breakpoint stmnt and move to the next
+p // create variable
+c // continue
+d or disable 1 // delete or disable breakpoint
+delete 1 // delete breakpoint
+list  or l // show code => mapping of source code
+p/x $pc
+x/i
+gdb outputing format
+set args
+man gdb 
+gdb --help
+

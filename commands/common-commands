@@ -1,1 +1,3 @@
 gdb -help
+gcc -g myprogram.c
+gdb a.out
