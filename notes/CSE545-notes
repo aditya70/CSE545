@@ -1,0 +1,29 @@
+
+0xac // higher + lower
+'a'=0x61 // 8 bits
+low memory address + high memory address
+
+decimal -> hexa
+highest significant bit to low memory address or another approach high memory address
+Little Endian => Least significant byte to low memory address
+
+struct.pack("<i",1000) // < Little Indian, i = integer
+struct.unpack("<i","")[0] // more details in python
+
+
+======== w4 =======
+pwn service > template.py
+io.recvuntil(b"from menu: ")
+io.sendline(b"1")
+
+diff = rbp - rip // need to overwrite
+bp - buffer + 8
+
+win address ? // look into binary of objdump command
+
+return address - () + () // win address
+
+=== another way to debug ====
+./template.py GDB
+gdb server 
+attach progrma to current binary

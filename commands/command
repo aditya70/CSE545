@@ -36,3 +36,4 @@ set args
 man gdb 
 gdb --help
 
+gcc -ggdb -Wall stack.c -o stack
