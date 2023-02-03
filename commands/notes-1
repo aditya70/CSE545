@@ -1,0 +1,12 @@
+# disable ASLR
+echo 0 | sudo tee /proc/sys/kernel/randomize_va_space
+# enable ASLR
+echo 2 | sudo tee /proc/sys/kernel/randomize_va_space
+
+This won't survive a reboot, so you'll have to configure this in sysctl. Add a file /etc/sysctl.d/01-disable-aslr.conf containing:
+
+kernel.randomize_va_space = 0
+
+# gcc -fno-stack-protector -z execstack -o <my_program> my_code.c
+gcc -g -fno-stack-protector -z execstack -no-pie -o vuln vuln.c
+dmesg | grep vuln

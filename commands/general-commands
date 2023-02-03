@@ -1,0 +1,44 @@
+python3 -m venv ./venv
+source bin/activate
+
+sudo apt install python3-pip
+pip3 install virtualenv
+alias virtualenv="python3 -m virtualenv"
+virtualenv venv
+
+. venv/bin/acivate
+deactivate // get out of the env
+
+virtualenv -p python2.7 venv // specific python run time environment
+
+ls /usr/bin/python*
+sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.7 1
+sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.8 2
+
+sudo update-alternatives --config python
+#select the number of python you want then enter
+python --version
+
+#if venv package for that version is not installed already
+sudo apt install pythonX.x-venv
+python -m venv venv
+source venv/bin/activate
+python --version
+
+=================== install python 3.7 =====
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt update
+sudo apt install python3.7
+
+===== python 2 ====
+sudo apt install python2
+python2 --version
+
+exit()
+
+\xef\xbe\xad\xde\xef\xbe\xad\xde
+
+
+
+
+

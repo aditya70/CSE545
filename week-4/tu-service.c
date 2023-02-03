@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <time.h>
+#include <ctype.h>
 
 unsigned long sp;
 unsigned long bp;

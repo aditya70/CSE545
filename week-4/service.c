@@ -8,7 +8,6 @@
 #include <stdio.h>
 #include <errno.h>
 #include <time.h>
-#include <ctype.h>
 
 unsigned long sp;
 unsigned long bp;
@@ -32,9 +31,9 @@ __attribute__((constructor))
 void init(void)
 {
     // disable buffering
-    /*setbuf(stdin, NULL);*/
+    setbuf(stdin, NULL);
     setbuf(stdout, NULL);
-    /*setbuf(stderr, NULL);*/
+    setbuf(stderr, NULL);
 }
 
 void print_greeting(){
@@ -57,13 +56,15 @@ int validate_id(char *id){
 void record(char id[15]){
   char path[50] = {};
   FILE *fd;
-  char asuid[15] = {};
-  strncpy(asuid, id, 15);
-  snprintf(path, sizeof(path) - 1, "records/%s", asuid);
+  /*char asuid[80] = {};*/
+  /*strncpy(asuid, id, 15);*/
+  /*snprintf(path, sizeof(path) - 1, "records/%s", asuid);*/
+  strncpy(path, "records/", 8);
+  strncat(path, id, sizeof(id));
   fd = fopen(path, "w");
   fclose(fd);
   printf("You got it!\n");
-  printf("Can you exploit withnot using the return address?\n");
+  printf("Can you exploit without using the return address?\n");
   printf("Can you exploit without using the win() function?\n");
 }
 
@@ -113,11 +114,11 @@ void vuln()
 
     // -----------------------------------------//
 
-    char buffer[0x610];
-    printf("We will now read in some bytes! 0x%x bytes to be exact!\n", 1808);
+    char buffer[20];
+    printf("We will now read in some bytes! 100 bytes to be exact!\n");
     printf("Here is where it will be stored: %lx\n\n",&buffer);
 
-    read(0, buffer, 0x710);
+    read(0, buffer, 100);
 
     // -----------------------------------------//
 
