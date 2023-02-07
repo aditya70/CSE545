@@ -27,3 +27,6 @@ return address - () + () // win address
 ./template.py GDB
 gdb server 
 attach progrma to current binary
+
+==================
+gcc ./vuln.c -no-pie -fno-stack-protector -z execstack -o vuln_aslr

