@@ -71,3 +71,8 @@ b'\x1a%\x0b\x16\xd9U\x00\x00'
 ===================
 server 
 0x55e5bee627e9 - 0x17e9 + 0x151a
+
+=====================
+saved rip
+The shellcode will be stored in rsp
+padding + rip(we are making it point to jmp function) +shellcode(at rsp)

