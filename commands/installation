@@ -1,0 +1,20 @@
+
+ropium
+Using /home/raj/.local/lib/python3.8/site-packages
+
+install -d /usr/lib/
+install -D ./bin/libropium.so /usr/lib/
+install -d /usr/include/
+install -D ./libropium/include/ropium.hpp /usr/include/
+install -d /root/.local/lib/python3.8/site-packages/
+install -D ./bin/ropium.so /root/.local/lib/python3.8/site-packages/
+install -d /usr/bin/
+install -D cli-tool/ropium /usr/bin/
+
+
+sudo mv /root/.local/lib/python3.8/site-packages/ropium.so ~/.local/lib/python3.8/site-packages/
+
+
+/home/raj/.local/lib/python3.8/site-packages
+
+sudo mv /root/.local/lib/python3.8/site-packages/ropium.so ~/.local/lib/python3.8/site-packages/
