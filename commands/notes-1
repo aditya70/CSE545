@@ -9,4 +9,5 @@ kernel.randomize_va_space = 0
 
 # gcc -fno-stack-protector -z execstack -o <my_program> my_code.c
 gcc -g -fno-stack-protector -z execstack -no-pie -o vuln vuln.c
+gcc -ggd -fno-stack-protector -z execstack -no-pie -o vuln vuln.c
 dmesg | grep vuln

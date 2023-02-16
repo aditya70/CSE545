@@ -8,6 +8,12 @@ x/i $pc
 x/10x $rsp
 x/10gx $rsp
 
+# Hexadecimal
+p/x variable
+
+# Binary
+p/t variable
+
 rbp addr - buf addr + 8 // win location
 
 current return addr - return address offset stastically + add win address stastically shown // get current win start address
@@ -76,3 +82,32 @@ server
 saved rip
 The shellcode will be stored in rsp
 padding + rip(we are making it point to jmp function) +shellcode(at rsp)
+
+
+====================================================
+The simplest use of output formats is to say how to print a value already computed. This is done by starting the arguments of the print command with a slash and a format letter. The format letters supported are:
+
+x
+Regard the bits of the value as an integer, and print the integer in hexadecimal.
+d
+Print as integer in signed decimal.
+u
+Print as integer in unsigned decimal.
+o
+Print as integer in octal.
+t
+Print as integer in binary. The letter `t' stands for "two". (2)
+a
+Print as an address, both absolute in hexadecimal and as an offset from the nearest preceding symbol. You can use this format used to discover where (in what function) an unknown address is located:
+(gdb) p/a 0x54320
+$3 = 0x54320 <_initialize_vx+396>
+The command info symbol 0x54320 yields similar results. See section Examining the Symbol Table.
+c
+Regard as an integer and print it as a character constant.
+f
+Regard the bits of the value as a floating point number and print using typical floating point syntax.
+For example, to print the program counter in hex (see section Registers), type
+
+p/x $pc
+
+========================================================
