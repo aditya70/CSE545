@@ -275,3 +275,54 @@ objdump -M intel -d /challenge/babystack_level9
 
 
   0x404058 + 0x800 = 0x404858
+
+====================================== 10 ======================================
+
+0x170 = buffer size = 368
+0x270 = read buffer = 624
+diff = 0x270 - 0x170 = 256
+
+hacker@buffer-overflow-level-10:/challenge$ ROPgadget --binary babystack_level10 | grep 'pop rdi'
+0x0000000000401553 : pop rdi ; ret
+
+hacker@buffer-overflow-level-10:/challenge$ objdump -M intel -d babystack_level10 | less
+4014c7:       e8 34 fc ff ff          call   401100 <printf@plt>
+4014cc:       48 8d 85 70 fe ff ff    lea    rax,[rbp-0x190]
+4014d3:       ba 70 02 00 00          mov    edx,0x270
+4014d8:       48 89 c6                mov    rsi,rax
+4014db:       bf 00 00 00 00          mov    edi,0x0
+4014e0:       e8 5b fc ff ff          call   401140 <read@plt>
+
+// worked problem 9 values 
+new_rbp = 0x404858
+main = 0x4014c4
+
+gef➤  got
+
+GOT protection: Partial RelRO | GOT functions: 9
+ 
+[0x404018] putchar@GLIBC_2.2.5  →  0x401030
+[0x404020] puts@GLIBC_2.2.5  →  0x401040
+[0x404028] strlen@GLIBC_2.2.5  →  0x401050
+[0x404030] setbuf@GLIBC_2.2.5  →  0x7f13d3c3aad0
+[0x404038] printf@GLIBC_2.2.5  →  0x401070
+[0x404040] __assert_fail@GLIBC_2.2.5  →  0x401080
+[0x404048] memset@GLIBC_2.2.5  →  0x401090
+[0x404050] close@GLIBC_2.2.5  →  0x4010a0
+[0x404058] read@GLIBC_2.2.5  →  0x4010b0
+
+
+0x404058 + 0x190 = 0x4041e8
+
+ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 | grep puts # not worked for puts offset
+hacker@buffer-overflow-level-10:/challenge$ objdump -T /lib/x86_64-linux-gnu/libc.so.6 | grep puts
+0000000000084420 g    DF .text	00000000000001dc  GLIBC_2.2.5 _IO_puts
+0000000000084420  w   DF .text	00000000000001dc  GLIBC_2.2.5 puts
+0000000000124330 g    DF .text	00000000000004f4  GLIBC_2.2.5 putspent
+0000000000126000 g    DF .text	00000000000002d8  GLIBC_2.10  putsgent
+0000000000082ce0  w   DF .text	0000000000000180  GLIBC_2.2.5 fputs
+0000000000082ce0 g    DF .text	0000000000000180  GLIBC_2.2.5 _IO_fputs
+000000000008e320  w   DF .text	000000000000009f  GLIBC_2.2.5 fputs_unlocked
+hacker@buffer-overflow-level-10:/challenge$ 
+
+disassemble main # prints disassembly of main function

