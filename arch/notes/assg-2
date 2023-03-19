@@ -1,0 +1,25 @@
+
+40131d <win>:  = 4199197 + 8 = 4199205
+
+ # 404050 <memset@GLIBC_2.2.5>
+
+0000000000401180 <memset@plt>:
+  401180:       f3 0f 1e fa             endbr64 
+  401184:       f2 ff 25 c5 2e 00 00    bnd jmpq *0x2ec5(%rip)        # 404050 <memset@GLIBC_2.2.5>
+  40118b:       0f 1f 44 00 00          nopl   0x0(%rax,%rax,1)
+
+
+401437:	e8 44 fd ff ff       	callq  401180 <memset@plt>
+40143c:	8b 85 c4 fb ff ff    	mov    -0x43c(%rbp),%eax
+401442:	48 98                	cltq   
+401444:	ba 00 04 00 00       	mov    $0x400,%edx
+401449:	48 29 c2             	sub    %rax,%rdx
+40144c:	48 8b 85 c8 fb ff ff 	mov    -0x438(%rbp),%rax
+401453:	be 00 00 00 00       	mov    $0x0,%esi
+401458:	48 89 c7             	mov    %rax,%rdi
+40145b:	e8 20 fd ff ff       	callq  401180 <memset@plt>
+
+0x00000000004014cd <+358>:   call   0x401160 <printf@plt>
+│gef➤  info r
+
+
