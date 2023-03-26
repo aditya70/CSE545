@@ -1,0 +1,21 @@
+The libc library is a system library that provides implementations of many standard C functions, as well as various other system-related functions and variables. Some common functions and variables provided by libc include:
+
+Memory management functions, such as malloc, calloc, realloc, and free
+String manipulation functions, such as strcpy, strcat, strcmp, and strlen
+Input/output functions, such as printf, scanf, fopen, fclose, and fgets
+Mathematical functions, such as sin, cos, tan, and sqrt
+Signal handling functions, such as signal and sigaction
+System-related functions, such as exit, abort, getpid, and gettimeofday
+Global variables, such as errno (which stores the error code of the last system call that failed)
+
+To see a list of functions and variables provided by the libc library on your system, you can use the nm or objdump utility with the -T option, for example:
+
+nm -D /usr/lib/libc.so | grep printf
+objdump -T /usr/lib/libc.so | grep printf
+
+The nm command lists the symbol names and addresses of all global symbols in the library, while the objdump command lists the symbol names, addresses, and associated libraries for all symbols in the library.
+
+The order for 4 argument is rdi ->rsi -> rdx -> rcx.
+
+readelf -s libc.so.6 | grep puts
+readelf -s libc.so.6 | grep system
