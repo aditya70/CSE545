@@ -1,0 +1,9 @@
+bbbaaaaaaaa.7f150def8723.0.7f150de19077.14.24.3d019dfe69.7ffc88e7d05d.0.7ffc88e7d0c0.7f150df08580.7ffc88e7d0b0.0.7f150defd520.3.0.0.0.0.677f9a5f.7f150df374f8.7ffc88e7d1d8.706e692072756f59.20203a7369207475.2020202020202020.2020202020202020.2020202020202020.2020202020202020.2020202020202020.6262620a20202020.6161616161616161. 
+total words = 31, so write will start from 30
+len("Your input is:                                              \n") = 61
+b *func+458
+b *func+601
+0x7ffd8bb9ca30 - 0x7ffd8bb9c9b0 = 128/8 = 16 = rdi - rsp
+16 (rdi-rsp) + 6 (stack location) + 7 (61/8) = 29 + 1 for remaining 3 chars = 30
+
+ 0x7ffd8bb9ce50 - 0x7ffd8bb9c9b0 = 1184/8 = 148 = rbp func - rsp func
