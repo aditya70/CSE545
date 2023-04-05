@@ -1,0 +1,66 @@
+
+
+len("Your input is:                                                                                                                             \n") = 140
+
+b *main+341
+b *func+13
+b *func2+521
+b *func
+b *func2
+
+
+
+140/8 = 17
+140%8 = 4
+
+0x7ffc382ebdc0 - 0x7ffc382eb810 = 1456 = rbp func2 - rsp func2 = 182.0 + 6 = 188 = rbp address
+0x7ffe881cb1a0 - 0x7ffe881cb010 = 400/8 = 50 = rdi - rsp
+50 + 6 + 17 (140/8) = 73 + 1 (for 4 characters) = 74$
+
+b'02: AAAA 0 (nil)'
+b'03: AAAA 7f769d987077 0x7f769d987077'     // 7f769d987077 can be calculated using libc base, its location is %3$lx, it can be used as offset
+b'04: AAAA 14 0x14'
+b'05: AAAA 2d 0x2d'
+b'06: AAAA 26ec195580 0x26ec195580'
+b'07: AAAA 7ffc0b15bf16 0x7ffc0b15bf16'
+b'08: AAAA 7f66f1ab4e74 0x7f66f1ab4e74'
+b'09: AAAA d82b830 0xd82b830'
+
+
+0x7fff4db35cd0: 0x4db35ce0 => func2 rbp -> func rbp
+0x7fff4db35cd0:      loopne 0x7fff4db35d2e
+
+
+12b0 <func>:
+12bd
+12c4 : ret
+12c5 <func2>:
+14f1
+14f2 <main>:
+1652
+=====
+
+main
+0x7ffe19504740 - rbp, 
+0x7ffe19504700 - rsp
+func
+0x7ffe195046f0 - rbp
+0x7ffe195046f0 - rsp
+func2 
+0x7ffe195046e0 - rbp
+0x7ffe19504130 - rsp
+0x00007ff039bdb000  // libc base
+0x7ffe19504748 - rip main, 0x7ffe195046f8 - rip func, 0x7ffe195046e8 - rip func2
+rbp main - func rbp = 80 , rbp func - rbp func2 = 16
+
+0x7ffdf2384ec0   0x7ffdf2384e70   0x7ffdf2384e60
+
+0x55641dbf74ce
+
+%188$p %189$p %190$p %191$p %192$p %193$p %194$p %195$p %196$p %197$p %198$p %199$p %200$p %201$p %202$p     
+
+0x7fff287eed10  0x7fff287eecc0 0x7fff287eecb0
+
+pidof binary
+cat /proc/<pid>/m
+info proc mappings

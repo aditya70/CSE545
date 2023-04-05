@@ -1,0 +1,35 @@
+__libc_start_main is a function provided by the C standard library, which is called by the operating system to start a C program. The __libc_start_main function is responsible for initializing the C runtime environment, setting up the arguments to main, and then calling main.
+
+When a C program is executed, the operating system loads the program into memory and transfers control to the entry point of the program, which is the _start symbol. The _start symbol is the first instruction that is executed when the program runs. The _start symbol is usually provided by the linker and it performs some initialization tasks, such as setting up the stack and initializing the dynamic linker.
+
+After performing these initialization tasks, _start calls the __libc_start_main function. The __libc_start_main function then initializes the C runtime environment, sets up the arguments to main, and calls main.
+
+Now let's talk about the stack frame of the main function. When main is called by __libc_start_main, a new stack frame is created on the stack. The stack frame contains the local variables of main, as well as the return address and the frame pointer.
+
+The return address is the address where the program will return to after main finishes executing. The return address is pushed onto the stack just before __libc_start_main calls main.
+
+The frame pointer is a pointer to the base of the stack frame. It is used to access the local variables of main. The frame pointer is set up by __libc_start_main just before it calls main. The frame pointer is usually stored in the rbp register.
+
+When main finishes executing, it returns to the address that was stored on the stack as the return address. The stack frame of main is then discarded, and control returns to __libc_start_main, which cleans up the C runtime environment and exits the program.
+
+
+=======
+To visualize the stack frame of __libc_start_main and main functions using GDB debugger, you can follow these steps:
+
+Compile your C program with debug symbols using the -g flag.
+
+Start GDB by running gdb <executable> in the command line.
+
+Set a breakpoint at the main function by running the command break main.
+
+Run the program using the command run.
+
+When the breakpoint is hit, switch to the context of __libc_start_main function by running the command up.
+
+Visualize the stack frame of __libc_start_main function by running the command info frame.
+
+Switch back to the context of main function by running the command down.
+
+Visualize the stack frame of main function by running the command info frame.
+
+This will show you the contents of the stack frame for each function, including the values of the registers, local variables, and arguments passed to the function.

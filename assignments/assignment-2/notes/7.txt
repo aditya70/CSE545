@@ -1,14 +1,38 @@
+use '%c'*(position-1) + '%n' to get the equivalent '%position$n'
+
 bbbaaaaaaaa.7f150def8723.0.7f150de19077.14.24.3d019dfe69.7ffc88e7d05d.0.7ffc88e7d0c0.7f150df08580.7ffc88e7d0b0.0.7f150defd520.3.0.0.0.0.677f9a5f.7f150df374f8.7ffc88e7d1d8.706e692072756f59.20203a7369207475.2020202020202020.2020202020202020.2020202020202020.2020202020202020.2020202020202020.6262620a20202020.6161616161616161. 
 total words = 31, so write will start from 30
 len("Your input is:                                              \n") = 61
+
+b *main+341
 b *func+458
 b *func+601
+b *func+636
+
+b *func+363
+b *func+434
+b *func+518
+b *func+577
+
+<func+636>       ret    
+
+
 0x7ffd8bb9ca30 - 0x7ffd8bb9c9b0 = 128/8 = 16 = rdi - rsp
-16 (rdi-rsp) + 6 (stack location) + 7 (61/8) = 29 + 1 for remaining 3 chars = 30
+16 (rdi-rsp) + 6 (stack location) + 7 (61/8) = 29 + 1 for remaining 5 chars = 30
+61%8 = 5
+61/8 = 7
 
  0x7ffd8bb9ce50 - 0x7ffd8bb9c9b0 = 1184/8 = 148 = rbp func - rsp func
 use '%c'*(position-1) + '%n' to get the equivalent '%position$n'
 
 info proc map // libc base 
 vmmap // gives memory map
-0x7f668abdc000 0x00007f668abdc000  0x1ed723 0x10e077
+0x7f668abdc000 0x00007f668abdc000  0x7f3134fa0000 // libc bases
+0x1ed723 0x10e077  // offset to calculate libc for position 1 and 3,  libc_base = leaked libc base - offset
+
+0x7fff9dbb2c00 - 0x7fff9dbb2760 = 1184/8 = 148 = rbp - rsp
+rbp location = 148 + 8 = 156
+
+0x7fff9dbb27e0 - 0x7fff9dbb2760 = 128/8=16 = rdi - rsp
+
+
