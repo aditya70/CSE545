@@ -1,0 +1,59 @@
+gef➤  vmmap
+[ Legend:  Code | Heap | Stack ]
+Start              End                Offset             Perm Path
+0x0000000000400000 0x0000000000401000 0x0000000000000000 r-- /challenge/babyformat_level5
+0x0000000000401000 0x0000000000402000 0x0000000000001000 r-x /challenge/babyformat_level5
+0x0000000000402000 0x0000000000403000 0x0000000000002000 r-- /challenge/babyformat_level5
+0x0000000000403000 0x0000000000404000 0x0000000000002000 r-- /challenge/babyformat_level5
+0x0000000000404000 0x0000000000405000 0x0000000000003000 rw- /challenge/babyformat_level5
+0x00007f4979d84000 0x00007f4979da6000 0x0000000000000000 r-- /usr/lib/x86_64-linux-gnu/libc-2.31.so
+0x00007f4979da6000 0x00007f4979f1e000 0x0000000000022000 r-x /usr/lib/x86_64-linux-gnu/libc-2.31.so
+0x00007f4979f1e000 0x00007f4979f6c000 0x000000000019a000 r-- /usr/lib/x86_64-linux-gnu/libc-2.31.so
+0x00007f4979f6c000 0x00007f4979f70000 0x00000000001e7000 r-- /usr/lib/x86_64-linux-gnu/libc-2.31.so
+0x00007f4979f70000 0x00007f4979f72000 0x00000000001eb000 rw- /usr/lib/x86_64-linux-gnu/libc-2.31.so
+0x00007f4979f72000 0x00007f4979f78000 0x0000000000000000 rw- 
+0x00007f4979f81000 0x00007f4979f82000 0x0000000000000000 r-- /usr/lib/x86_64-linux-gnu/ld-2.31.so
+0x00007f4979f82000 0x00007f4979fa5000 0x0000000000001000 r-x /usr/lib/x86_64-linux-gnu/ld-2.31.so
+0x00007f4979fa5000 0x00007f4979fad000 0x0000000000024000 r-- /usr/lib/x86_64-linux-gnu/ld-2.31.so
+0x00007f4979fae000 0x00007f4979faf000 0x000000000002c000 r-- /usr/lib/x86_64-linux-gnu/ld-2.31.so
+0x00007f4979faf000 0x00007f4979fb0000 0x000000000002d000 rw- /usr/lib/x86_64-linux-gnu/ld-2.31.so
+
+0x00007f4979d84000 = libc_base start of libc base
+0x00007f4979faf000 = end of libc base
+
+gef➤  find 0x00007f4979d84000,0x00007f4979faf000,"/bin/sh"
+0x7f4979f385bd
+
+gef➤  x/s 0x7f4979f385bd
+0x7f4979f385bd:	"/bin/sh"
+
+>>> hex(0x7f4979f385bd - 0x00007f4979d84000) = offset of bin sh
+'0x1b45bd'
+
+address of bin sh = libc_base + offset of bin sh =  0x00007f4979d84000 + 0x1b45bd
+
+ ROPgadget --binary /usr/lib/x86_64-linux-gnu/libc-2.31.so --string "/bin/sh"  = 0x1b45bd
+
+ 0x7fba3d1d0077 - 0x00007fba3d0c2000 = random libc func addr - libc base = offset = 1106039 = 0x10e077
+
+ b *func+66
+ b *func+344
+ 0x00007fb5f1a80000  (by vmmap) =  0x7fb5f1a80000 (calculation %3$lx python script)
+
+ gef➤  got
+GOT protection: Partial RelRO | GOT functions: 10
+[0x404018] putchar@GLIBC_2.2.5  →  0x7f6bc4f1d280
+[0x404020] puts@GLIBC_2.2.5  →  0x7f6bc4f1b420
+[0x404028] strlen@GLIBC_2.2.5  →  0x7f6bc4f48bc0
+[0x404030] setbuf@GLIBC_2.2.5  →  0x7f6bc4f22ad0
+[0x404038] printf@GLIBC_2.2.5  →  0x7f6bc4ef8c90
+[0x404040] __assert_fail@GLIBC_2.2.5  →  0x401080
+[0x404048] memset@GLIBC_2.2.5  →  0x7f6bc4f52f80
+[0x404050] close@GLIBC_2.2.5  →  0x7f6bc4fa5800
+[0x404058] read@GLIBC_2.2.5  →  0x7f6bc4fa4fc0
+[0x404060] exit@GLIBC_2.2.5  →  0x4010c0
+ hacker@format-string-level-5:~$ ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 --only "leave|ret"
+Gadgets information
+============================================================
+0x00000000000578c8 : leave ; ret
+0x00000000000c7aa3 : leave ; ret 0xfff6

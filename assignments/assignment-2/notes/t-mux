@@ -1,0 +1,11 @@
+ctrl + b , :
+set mouse on
+
+#source /opt/gef/gef.py
+source /opt/pwndbg/gdinit.py
+
+pidof binary
+cat /proc/<pid>/m
+info proc mappings
+
+set -g mouse on" >> ~/.tmux.conf

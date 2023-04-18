@@ -312,9 +312,10 @@ GOT protection: Partial RelRO | GOT functions: 9
 [0x404058] read@GLIBC_2.2.5  →  0x4010b0
 
 
-0x404058 + 0x190 = 0x4041e8
+0x404058 + 0x190 = 0x4041e8 = read got  + read argument offset which is [rbp-0x190]
 
 ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 | grep puts # not worked for puts offset
+The command "objdump -T /lib/x86_64-linux-gnu/libc.so.6 | grep puts" will search for the symbol "puts" in the dynamic symbol table of the C standard library file "libc.so.6" located in the "/lib/x86_64-linux-gnu/" directory of a Linux system.
 hacker@buffer-overflow-level-10:/challenge$ objdump -T /lib/x86_64-linux-gnu/libc.so.6 | grep puts
 0000000000084420 g    DF .text	00000000000001dc  GLIBC_2.2.5 _IO_puts
 0000000000084420  w   DF .text	00000000000001dc  GLIBC_2.2.5 puts

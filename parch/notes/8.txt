@@ -1,0 +1,25 @@
+
+len("Your input is:                                                                                                                             \n") = 140
+
+b *main+341
+b *func+13
+b *func2+521
+
+140/8 = 17
+140%8 = 4
+
+0x7ffc382ebdc0 - 0x7ffc382eb810 = 1456 = rbp func2 - rsp func2 = 182.0 + 6 = 188 = rbp address
+0x7ffe881cb1a0 - 0x7ffe881cb010 = 400/8 = 50 = rdi - rsp
+50 + 6 + 17 (140/8) = 73 + 1 (for 4 characters) = 74$
+
+b'02: AAAA 0 (nil)'
+b'03: AAAA 7f769d987077 0x7f769d987077'     // 7f769d987077 can be calculated using libc base, its location is %3$lx, it can be used as offset
+b'04: AAAA 14 0x14'
+b'05: AAAA 2d 0x2d'
+b'06: AAAA 26ec195580 0x26ec195580'
+b'07: AAAA 7ffc0b15bf16 0x7ffc0b15bf16'
+b'08: AAAA 7f66f1ab4e74 0x7f66f1ab4e74'
+b'09: AAAA d82b830 0xd82b830'
+
+0x00007f1114906000
+0x7f1114b220ee

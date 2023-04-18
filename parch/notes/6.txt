@@ -1,0 +1,67 @@
+ len("Your input is:                       \n") = 38
+ b *func+368
+ b *func+466
+ b *func+476
+<+368>:   call   0x55845d8ff120 <printf@plt>
+
+0x7ffc4fc63b00 - 0x7ffc4fc635e0 = 1312/8= 164 = rbp func - rsp func
+0x7ffc4fc636e0 - 0x7ffc4fc635e0 = 256/8 = 32 = rdi func - rsp func
+rbp location = 164 + 6 = 170
+
+0x7ffe632822e0 - 0x7ffe63281db8=1320 (for rsp calculation, this is offset for rbp func - rsp func)
+
+0000000000001170 <exit@plt>:
+    1170:       f3 0f 1e fa             endbr64 
+    1174:       f2 ff 25 e5 2e 00 00    bnd jmpq *0x2ee5(%rip)        # 4060 <exit@GLIBC_2.2.5>
+    117b:       0f 1f 44 00 00          nopl   0x0(%rax,%rax,1)
+
+
+00000000000012b0 <func>: 
+
+<main>
+15e6:       e8 c5 fc ff ff          callq  12b0 <func>
+15eb:       b8 00 00 00 00          mov    $0x0,%eax
+
+func_addr = rip - 0x15eb + 0x12b0 
+
+32 (rdi - rsp) + 6 (stack register location) + 38/8 (leading string - 4.75) = 42 + 6 bytes = 43    
+
+0x7fff893242c0 - 0x55a6824f148c = 46561856007732 = rbp - exit addr 
+0x7ffedb2b7fd0 - 0x55a619a1548c = 46560692546372
+
+gef➤  got
+
+GOT protection: Partial RelRO | GOT functions: 10
+ 
+[0x561474ee3018] putchar@GLIBC_2.2.5  →  0x7f779134b280
+[0x561474ee3020] puts@GLIBC_2.2.5  →  0x7f7791349420
+[0x561474ee3028] strlen@GLIBC_2.2.5  →  0x7f7791376bc0
+[0x561474ee3030] setbuf@GLIBC_2.2.5  →  0x7f7791350ad0
+[0x561474ee3038] printf@GLIBC_2.2.5  →  0x7f7791326c90
+[0x561474ee3040] __assert_fail@GLIBC_2.2.5  →  0x561474ee0080
+[0x561474ee3048] memset@GLIBC_2.2.5  →  0x7f7791380f80
+[0x561474ee3050] close@GLIBC_2.2.5  →  0x7f77913d3800
+[0x561474ee3058] read@GLIBC_2.2.5  →  0x7f77913d2fc0
+[0x561474ee3060] exit@GLIBC_2.2.5  →  0x561474ee00c0
+
+gef➤  got
+
+GOT protection: Partial RelRO | GOT functions: 10
+ 
+[0x5577c45a4018] putchar@GLIBC_2.2.5  →  0x7f5335f90280
+[0x5577c45a4020] puts@GLIBC_2.2.5  →  0x7f5335f8e420
+[0x5577c45a4028] strlen@GLIBC_2.2.5  →  0x7f5335fbbbc0
+[0x5577c45a4030] setbuf@GLIBC_2.2.5  →  0x7f5335f95ad0
+[0x5577c45a4038] printf@GLIBC_2.2.5  →  0x7f5335f6bc90
+[0x5577c45a4040] __assert_fail@GLIBC_2.2.5  →  0x5577c45a1080
+[0x5577c45a4048] memset@GLIBC_2.2.5  →  0x7f5335fc5f80
+[0x5577c45a4050] close@GLIBC_2.2.5  →  0x7f5336018800
+[0x5577c45a4058] read@GLIBC_2.2.5  →  0x7f5336017fc0
+[0x5577c45a4060] exit@GLIBC_2.2.5  →  0x5577c45a10c0
+
+ objdump -T /lib/x86_64-linux-gnu/libc.so.6 | grep puts
+  objdump -T /lib/x86_64-linux-gnu/libc.so.6 | grep exit
+ 0000000000046a40 g    DF .text	0000000000000020  GLIBC_2.2.5 exit
+
+ exit_loc = rip_func_addr - 0x15eb  + 0x4060 
+ func_addr = rip_func_addr - 0x15eb  + 0x12b0 
