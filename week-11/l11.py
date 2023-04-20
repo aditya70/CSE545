@@ -4,8 +4,8 @@
 # $ pwn template use_after_free.c
 from pwn import *
 
-p = remote('107.21.135.41', 11111)
-binary =  './a'
+# p = remote('107.21.135.41', 11111)
+binary =  './use_after_free'
 
 gs = """
 break main
@@ -51,9 +51,9 @@ def main():
         p = gdb.debug(binary, gdbscript=gs)
     else:
         p=process(binary)    
-    p.recvuntil(END_OF_MENU)
-    launch_attack(p)
+        p.recvuntil(END_OF_MENU)
+        launch_attack(p)
 
-# main()  
+main()  
 
-launch_attack(p)
+# launch_attack(p)
