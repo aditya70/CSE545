@@ -1,0 +1,9 @@
+arena
+dq &main_arena   // dump command
+vis // get tcache bin
+
+free bin goes to unsorted bin -> small bin -> large bin
+vis_heap_chunks
+heap // all the chunks used and free
+tcache // gives information of tcache
+tcachebins
