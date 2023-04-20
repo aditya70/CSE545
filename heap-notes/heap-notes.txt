@@ -3,7 +3,17 @@ dq &main_arena   // dump command
 vis // get tcache bin
 
 free bin goes to unsorted bin -> small bin -> large bin
-vis_heap_chunks
+vis_heap_chunks // Visualize heap chunks at the specified address
 heap // all the chunks used and free
-tcache // gives information of tcache
+tcache // gives information of tcache // Print malloc thread cache info.
 tcachebins
+arenas
+bins 
+tcachebins
+fastbins
+unsortedbin
+smallbins
+largebins
+malloc_chunk // args required
+mp    // Prints out the mp_ structure from glibc.
+top_chunk // Prints out the address of the top chunk of the main arena,
