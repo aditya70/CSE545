@@ -49,6 +49,8 @@ def launch_attack(p):
 def main():
     if args.GDB:
         p = gdb.debug(binary, gdbscript=gs)
+        p.recvuntil(END_OF_MENU)
+        launch_attack(p)
     else:
         p=process(binary)    
         p.recvuntil(END_OF_MENU)
