@@ -1,0 +1,5 @@
+set *0x603260=0x602078
+vis
+x/i win     0x400efe <win>:
+set *(long *)0x602078=0x400efe  // set value at got malloc (0x602078) to win address (0x400efe)
+l // command lists the code
