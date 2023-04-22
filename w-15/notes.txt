@@ -1,3 +1,7 @@
-cyber expert
+cyber expert you tube channel for heap exploitation
 
 nc 107.21.135.41 15555
+
+# objdump -T ./libc.so.6 | grep __malloc_hook
+# objdump -T ./libc.so.6 | grep __free_hook
+# objdump -T ./libc.so.6 | grep __realloc_hook
