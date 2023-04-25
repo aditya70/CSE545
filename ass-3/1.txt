@@ -1,0 +1,12 @@
+acker@heap-level-1:/challenge$ objdump -d babyheap_level1 | grep 'malloc'
+00000000004011f0 <malloc_usable_size@plt>:
+  4011f4:       f2 ff 25 6d 2e 00 00    bnd jmpq *0x2e6d(%rip)        # 404068 <malloc_usable_size@GLIBC_2.2.5>
+0000000000401220 <malloc@plt>:
+  401224:       f2 ff 25 55 2e 00 00    bnd jmpq *0x2e55(%rip)        # 404080 <malloc@GLIBC_2.2.5>
+  40172d:       e8 ee fa ff ff          callq  401220 <malloc@plt>
+  4017f6:       e8 f5 f9 ff ff          callq  4011f0 <malloc_usable_size@plt>
+
+
+
+  objdump -d babyheap_level1 | grep win
+  0x40139d
