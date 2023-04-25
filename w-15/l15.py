@@ -12,37 +12,7 @@ from pwn import *
 # for all created processes...
 # ./exploit.py DEBUG NOASLR
 # ./exploit.py GDB HOST=example.com PORT=4141
-host = args.HOST or '107.21.135.41'
-port = int(args.PORT or 15555)
 
-def start_local(argv=[], *a, **kw):
-    '''Execute the target binary locally'''
-    if args.GDB:
-        return gdb.debug([exe.path] + argv, gdbscript=gdbscript, *a, **kw)
-    else:
-        return process([exe.path] + argv, *a, **kw)
-
-def start_remote(argv=[], *a, **kw):
-    '''Connect to the process on the remote host'''
-    io = connect(host, port)
-    if args.GDB:
-        gdb.attach(io, gdbscript=gdbscript)
-    return io
-
-def start(argv=[], *a, **kw):
-    '''Start the exploit against the target.'''
-    if args.LOCAL:
-        return start_local(argv, *a, **kw)
-    else:
-        return start_remote(argv, *a, **kw)
-
-# Specify your GDB script here for debugging
-# GDB will be launched if the exploit is run via e.g.
-# ./exploit.py GDB
-gdbscript = '''
-tbreak main
-continue
-'''.format(**locals())
 
 #===========================================================
 #                    EXPLOIT GOES HERE
@@ -134,6 +104,6 @@ def launch_attack(p):
 
 
 
-io = start()
+io = process('./use_after_free')
 
 launch_attack(io)

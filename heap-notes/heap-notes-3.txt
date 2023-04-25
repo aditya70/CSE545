@@ -1,0 +1,40 @@
+set context-sections controlled
+context
+vmmap   // heap blue color
+n // next step
+vis // visualize heap chunk
+first 8 bytes i.e. 1st block escape used for heap alignment+ 0x251 (0x250 size of heap blue color )
+blue part escape, it is used by heap for itself 
+purple part heap chunk allocation
+minumum 32 bytes chunk i.e. 0x20 // we can utilise 3 block i.e. 24 bytes out of 32 bytes
+first block out of 4 alllocated blocks use by heap to store it's metadata
+1st block = 0x21 = 0x20 + 1 // 1 doesn't include
+
+last block 0x20d70 + 1 heap top chunk size  = heap size
+every malloc creates chunk of size 32 bytes i.e 4 blocks 
+context // show c code
+
+after free it shows to tcachebins and it is reusable
+tcachebins // used to store free chunks , blue color region in vis, we can see free chunks address HERE
+3rd block shows length of chunk in tcachebin 
+stores the address of latest free chunk
+1st malloc allocate latest free chunk which is in tcachebins
+
+heap allocation is done in multiple of 16, minimum 32 bytes then 48 bytes then 48 + 16 bytes
+
+tcache entries for 
+0x20, 0x30, 0x40, 0x50, 0x60 adrresses blockwise
+it can store 64 different addresses of chunk size
+
+// heap structure
+tcache
+chunk
+top chunk
+
+
+malloc -> check tcache -> check other bins -> cut top chunk
+
+free -> use tcache -> use other bins 
+rare case comibine with top chunk
+
+tcache limit is 7, it can store 7 chunks of 0x20, 7 chunks of 0x30, 7 chunks of 0x40 and so on
