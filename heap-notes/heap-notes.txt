@@ -17,3 +17,10 @@ largebins
 malloc_chunk // args required
 mp    // Prints out the mp_ structure from glibc.
 top_chunk // Prints out the address of the top chunk of the main arena,
+
+template --quiet ./heap_vuln > exploit.py  // generate template without comment
+elf.got.malloc  or elf.got.free or elf.go.exit    // note call same function corresponding
+elf.sym.win
+
+info functions  // list all functions
+cyclic 25
