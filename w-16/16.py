@@ -43,7 +43,7 @@ def attack(io: remote) -> None:
 
     io.sendline(b'm 8')
     # io.recvuntil(b'ASURITE?\n')
-    # io.sendline(b'agoyal61')
+    # io.sendline(b'xxx')
     # io.recvuntil(b'repeats.')
 
 
